@@ -1,0 +1,10 @@
+Log: Archive.log
+New Archive
+Check: Compress Archive
+Check: Menus
+Check: Misc
+Check: Retain Directory Names
+Check: Retain File Names
+Set File Group Root: Data\
+Add File Group: filegroup_all.txt
+Save Archive: _generated\XFLMain.bsa

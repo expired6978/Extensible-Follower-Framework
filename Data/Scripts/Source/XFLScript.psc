@@ -307,7 +307,7 @@ EndFunction
 
 Actor Function XFL_GetClosestFollower(ObjectReference akSource)
 	int i = 0
-	Actor foundActor = XFL_FollowerAliases[0].GetReference()
+	Actor foundActor = XFL_FollowerAliases[0].GetReference() as Actor
 	int limit = XFL_GetMaximum()
 	While i <= limit ; Find the highest value
 		If XFL_FollowerAliases[i] && XFL_FollowerAliases[i].GetReference() && akSource.GetDistance(foundActor) < akSource.GetDistance(XFL_FollowerAliases[i].GetReference())

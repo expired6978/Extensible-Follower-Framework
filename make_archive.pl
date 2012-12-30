@@ -28,15 +28,29 @@ $archivePath	= $skyrimPath . "\\Archive.exe";
 $archiveOutPath	= "_generated";
 
 $fileGroupScriptsPath = "filegroup_scripts.txt";
+$fileGroupInterfacePath = "filegroup_interface.txt";
 
 $filegroupPathOut = "filegroup_all.txt";
 
 @filegroupPathsIn = (
+	$fileGroupInterfacePath,
 	$fileGroupScriptsPath
 );
 
 # No wait?
 $noWait = defined($ARGV[0]);
+
+# Fetch latest .swf's from build/
+print "=== Updating .SWF files...\n\n";
+open(IN, $fileGroupInterfacePath) or error("Cannot open $fileGroupInterfacePath: $!");
+
+while (my $file = <IN>) {
+	chomp($file);
+	$file =~ s/^Interface\\//;
+	copyFile("$swfBuildPath\\$file", "Data\\Interface\\$file");
+}
+close(IN);
+print "Done.\n\n";
 
 # Merge filegroup lists
 print ("=== Merging filegroup lists...\n\n");

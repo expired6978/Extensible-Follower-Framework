@@ -1,3 +1,7 @@
+Interface\magicmenuext.swf
+Interface\selectionmenu.swf
+Interface\statssheetmenu.swf
+Interface\translations\XFLMenus_ENGLISH.txt
 Scripts\EXP_DialogueFollowerScript.pex
 Scripts\EXP_FreeformSkyHavenTempleAScript.pex
 Scripts\EXP_HirelingQuest.pex

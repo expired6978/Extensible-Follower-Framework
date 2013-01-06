@@ -1,6 +1,9 @@
 Interface\magicmenuext.swf
 Interface\selectionmenu.swf
 Interface\statssheetmenu.swf
+Interface\followermenu.swf
+Interface\messagebox.swf
+Interface\res\XFLLogo.dds
 Interface\translations\XFLMenus_ENGLISH.txt
 Scripts\EXP_DialogueFollowerScript.pex
 Scripts\EXP_FreeformSkyHavenTempleAScript.pex
@@ -242,11 +245,12 @@ Scripts\EXP_TIF__0200B656.pex
 Scripts\EXP_TIF__0200B658.pex
 Scripts\XFLAliasOutfit.pex
 Scripts\XFLAliasScript.pex
+Scripts\XFLConfig.pex
 Scripts\XFLConfigBook.pex
 Scripts\XFLFocusFire.pex
-Scripts\XFLGameSettings.pex
 Scripts\XFLLoadSettings.pex
 Scripts\XFLMagicMenu.pex
+Scripts\XFLMenuBase.pex
 Scripts\XFLMenuScript.pex
 Scripts\XFLMindControl.pex
 Scripts\XFLOutfit.pex
@@ -507,11 +511,12 @@ Scripts\Source\EXP_TIF__0200B656.psc
 Scripts\Source\EXP_TIF__0200B658.psc
 Scripts\Source\XFLAliasOutfit.psc
 Scripts\Source\XFLAliasScript.psc
+Scripts\Source\XFLConfig.psc
 Scripts\Source\XFLConfigBook.psc
 Scripts\Source\XFLFocusFire.psc
-Scripts\Source\XFLGameSettings.psc
 Scripts\Source\XFLLoadSettings.psc
 Scripts\Source\XFLMagicMenu.psc
+Scripts\Source\XFLMenuBase.psc
 Scripts\Source\XFLMenuScript.psc
 Scripts\Source\XFLMindControl.psc
 Scripts\Source\XFLOutfit.psc

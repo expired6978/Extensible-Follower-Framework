@@ -38,6 +38,7 @@ Message Property XFL_MessageStats_Combat Auto
 Message Property XFL_MessageStats_Skill Auto
 Message Property XFL_MessageStats_Magic Auto
 
+GlobalVariable Property XFL_Config_UseClassicMenus Auto
 GlobalVariable Property XFL_Config_UseMenus Auto
 GlobalVariable Property XFL_Config_IgnoreTimeout Auto
 GlobalVariable Property XFL_Config_RideHorses Auto
@@ -362,25 +363,25 @@ EndFunction
 ; Trigger standalone menus
 Function XFL_FollowerMenu(Actor followerActor)
 	OnStartMenu()
-	XFL_TriggerMenu(followerActor, "FollowerMenu")
+	XFL_TriggerMenu(followerActor, GetMenuState("FollowerMenu"))
 EndFunction
 
 Function XFL_CommandFollower(Actor followerActor)
 	OnStartMenu()
-	XFL_TriggerMenu(followerActor, "CommandMenu")
+	XFL_TriggerMenu(followerActor, GetMenuState("CommandMenu"))
 EndFunction
 
 Function XFL_CommandGroup(Actor followerActor = None)
 	OnStartMenu()
-	XFL_TriggerMenu(followerActor, "GroupMenu")
+	XFL_TriggerMenu(followerActor, GetMenuState("GroupMenu"))
 EndFunction
 
 Function XFL_Stats(Actor followerActor)
-	XFL_TriggerMenu(followerActor, "StatsMenu")
+	XFL_TriggerMenu(followerActor, GetMenuState("StatsMenu"))
 EndFunction
 
 Function XFL_Plugins(Actor followerActor)
-	XFL_TriggerMenu(followerActor, "PluginMenu")
+	XFL_TriggerMenu(followerActor, GetMenuState("PluginMenu"))
 EndFunction
 
 Function XFL_TriggerMenu(Actor followerActor, string menuState = "", string previousState = "", int page = 0)
@@ -396,23 +397,34 @@ Function deactivateMenu()
 	; Do nothing
 EndFunction
 
+string Function GetMenuState(string menuName)
+	string menuSuffix = "_Classic"
+	If XFL_Config_UseClassicMenus.value == 1
+		menuSuffix = "_Classic"
+	Else
+		menuSuffix = "_Standard"
+	Endif
+
+	return menuName + menuSuffix
+endFunction
+
 string Function GetParentState(string menuState = "")
-	If menuState == "PluginMenu"
+	If menuState == GetMenuState("PluginMenu")
 		return branchState
-	Elseif menuState == "StatsMenu"
-		return "CommandMenu"
-	Elseif menuState == "FollowerMenu"
+	Elseif menuState == GetMenuState("StatsMenu")
+		return GetMenuState("CommandMenu")
+	Elseif menuState == GetMenuState("FollowerMenu")
 		return ""
-	Elseif menuState == "GroupMenu"
-		return "FollowerMenu"
-	Elseif menuState == "CommandMenu"
-		return "FollowerMenu"
+	Elseif menuState == GetMenuState("GroupMenu")
+		return GetMenuState("FollowerMenu")
+	Elseif menuState == GetMenuState("CommandMenu")
+		return GetMenuState("FollowerMenu")
 	Else
 		return ""
 	Endif
 EndFunction
 
-State FollowerMenu
+State FollowerMenu_Classic
 	Function activateMenu(Actor followerActor = None, string previousState = "", int page = 0)
 		Int Command_Group = 0
 		Int Command_Command = 1
@@ -431,9 +443,9 @@ State FollowerMenu
 		
 		int ret = XFL_MessageCommands.Show()
 		If ret == Command_Group ; Group Menu
-			XFL_TriggerMenu(followerActor, "GroupMenu", GetState())
+			XFL_TriggerMenu(followerActor, GetMenuState("GroupMenu"), GetState())
 		Elseif ret == Command_Command ; Command Menu
-			XFL_TriggerMenu(followerActor, "CommandMenu", GetState())
+			XFL_TriggerMenu(followerActor, GetMenuState("CommandMenu"), GetState())
 		Elseif ret == Command_Talk ; Talk
 			followerActor.Activate(Game.GetPlayer(), true)
 			OnFinishMenu()
@@ -454,7 +466,49 @@ State FollowerMenu
 	EndFunction
 EndState
 
-State CommandMenu
+State FollowerMenu_Standard
+	Function activateMenu(Actor followerActor = None, string previousState = "", int page = 0)
+		Int Command_Group = 1
+		Int Command_Command = 5
+		Int Command_Talk = 2
+		Int Command_Exit = 6
+
+		XFLWheel wheelMenu = XFL_GetFollowerMenu()
+		if wheelMenu
+			wheelMenu.ClearMenu()
+			wheelMenu.SetWheelOptionText(Command_Group, "$Group")
+			wheelMenu.SetWheelOptionText(Command_Command, "$Command")
+			wheelMenu.SetWheelOptionText(Command_Talk, "$Talk")
+			wheelMenu.SetWheelOptionText(Command_Exit, "$Exit")
+			wheelMenu.SetWheelOptionLabelText(Command_Group, "$Group")
+			wheelMenu.SetWheelOptionLabelText(Command_Command, "$Command")
+			wheelMenu.SetWheelOptionLabelText(Command_Talk, "$Talk")
+			wheelMenu.SetWheelOptionLabelText(Command_Exit, "$Exit")
+			wheelMenu.SetWheelOptionEnabled(Command_Group, true)
+			wheelMenu.SetWheelOptionEnabled(Command_Command, true)
+			wheelMenu.SetWheelOptionEnabled(Command_Talk, true)
+			wheelMenu.SetWheelOptionEnabled(Command_Exit, true)
+			int ret = wheelMenu.OpenMenu(followerActor)
+			If ret == Command_Group
+				XFL_TriggerMenu(followerActor, GetMenuState("GroupMenu"), GetState())
+			Elseif ret == Command_Command
+				XFL_TriggerMenu(followerActor, GetMenuState("CommandMenu"), GetState())
+			Elseif ret == Command_Talk
+				followerActor.Activate(Game.GetPlayer(), true)
+				OnFinishMenu()
+			Elseif ret == Command_Exit
+				OnFinishMenu()
+			Endif
+		Endif
+		deactivateMenu()
+	EndFunction
+	
+	Function deactivateMenu()		
+		GoToState("")
+	EndFunction
+EndState
+
+State CommandMenu_Classic
 	Function activateMenu(Actor followerActor = None, string previousState = "", int page = 0)
 		Int Command_Wait = 0
 		Int Command_Follow = 1
@@ -527,9 +581,9 @@ State CommandMenu
 			followerActor.OpenInventory()
 			OnFinishMenu()
 		Elseif ret == Command_Stats ; Stats
-			XFL_TriggerMenu(followerActor, "StatsMenu", GetState())
+			XFL_TriggerMenu(followerActor, GetMenuState("StatsMenu"), GetState())
 		Elseif ret == Command_More ; More
-			XFL_TriggerMenu(followerActor, "PluginMenu", GetState())
+			XFL_TriggerMenu(followerActor, GetMenuState("PluginMenu"), GetState())
 		Elseif ret == Command_Back ; Back
 			XFL_TriggerMenu(followerActor, previousState)
 		Elseif ret == Command_Exit ; Exit
@@ -552,7 +606,100 @@ State CommandMenu
 	EndFunction
 EndState
 
-State GroupMenu
+State CommandMenu_Standard
+	Function activateMenu(Actor followerActor = None, string previousState = "", int page = 0)
+		Int Command_WaitFollow = 0
+		Int Command_Dismiss = 1
+		Int Command_Relax = 2
+		Int Command_Trade = 3
+		Int Command_Stats = 4
+		Int Command_More = 5
+		Int Command_Back = 6
+		Int Command_Exit = 7
+
+		XFLWheel wheelMenu = XFL_GetFollowerMenu()
+		if wheelMenu
+			wheelMenu.ClearMenu()		
+			wheelMenu.SetWheelOptionText(Command_Dismiss, "$Dismiss")
+			wheelMenu.SetWheelOptionText(Command_Relax, "$Relax")
+			wheelMenu.SetWheelOptionText(Command_Trade, "$Trade")
+			wheelMenu.SetWheelOptionText(Command_Stats, "$Stats")
+			wheelMenu.SetWheelOptionText(Command_More, "$More")
+			wheelMenu.SetWheelOptionText(Command_Back, "$Back")
+			wheelMenu.SetWheelOptionText(Command_Exit, "$Exit")
+			wheelMenu.SetWheelOptionText(Command_Dismiss, "$Dismiss")
+			wheelMenu.SetWheelOptionText(Command_Relax, "$Relax")
+			wheelMenu.SetWheelOptionText(Command_Trade, "$Trade")
+			wheelMenu.SetWheelOptionText(Command_Stats, "$Stats")
+			wheelMenu.SetWheelOptionText(Command_More, "$More")
+			wheelMenu.SetWheelOptionText(Command_Back, "$Back")
+			wheelMenu.SetWheelOptionText(Command_Exit, "$Exit")
+			wheelMenu.SetWheelOptionEnabled(Command_WaitFollow, true)
+			wheelMenu.SetWheelOptionEnabled(Command_Dismiss, true)
+			wheelMenu.SetWheelOptionEnabled(Command_Relax, true)
+			wheelMenu.SetWheelOptionEnabled(Command_Trade, true)
+			wheelMenu.SetWheelOptionEnabled(Command_Stats, true)
+			wheelMenu.SetWheelOptionEnabled(Command_More, true)
+			wheelMenu.SetWheelOptionEnabled(Command_Back, false)
+			wheelMenu.SetWheelOptionEnabled(Command_Exit, true)
+
+			float waiting = followerActor.GetAv("WaitingForPlayer")
+			If waiting == 0 ; Not waiting for player
+				wheelMenu.SetWheelOptionText(Command_WaitFollow, "$Wait")
+			Elseif waiting == 1 ; Waiting for player
+				wheelMenu.SetWheelOptionText(Command_WaitFollow, "$Follow")
+				wheelMenu.SetWheelOptionEnabled(Command_Relax, false)
+			Elseif waiting == 2 ; Relaxing
+				wheelMenu.SetWheelOptionText(Command_WaitFollow, "$Follow")
+			Else ; Waiting state neither of these three, show all
+				wheelMenu.SetWheelOptionText(Command_WaitFollow, "$Follow")
+			EndIf
+
+			If previousState != ""
+				wheelMenu.SetWheelOptionEnabled(Command_Back, true)
+			EndIf
+
+			int ret = wheelMenu.OpenMenu(followerActor)
+			If ret == Command_WaitFollow
+				If waiting == 0
+					XFLMain.XFL_SetWait(followerActor)
+				Else
+					XFLMain.XFL_SetFollow(followerActor)
+				Endif
+				OnFinishMenu()
+			Elseif ret == Command_Dismiss
+				XFLMain.XFL_RemoveFollower(followerActor)
+				OnFinishMenu()
+			Elseif ret == Command_Relax
+				XFLMain.XFL_SetSandbox(followerActor)
+				OnFinishMenu()
+			Elseif ret == Command_Trade
+				followerActor.OpenInventory()
+				OnFinishMenu()
+			Elseif ret == Command_Stats
+				XFLStatsMenu statsMenu = XFL_GetStatsMenu()
+				if statsMenu
+					statsMenu.OpenMenu(followerActor)
+				Endif
+				OnFinishMenu()
+			Elseif ret == Command_More
+				XFL_TriggerMenu(followerActor, GetMenuState("PluginMenu"), GetState())
+			Elseif ret == Command_Back
+				XFL_TriggerMenu(followerActor, previousState)
+				OnFinishMenu()
+			Elseif ret == Command_Exit
+				OnFinishMenu()
+			Endif
+		Endif
+		deactivateMenu()
+	EndFunction
+	
+	Function deactivateMenu()		
+		GoToState("")
+	EndFunction
+EndState
+
+State GroupMenu_Classic
 	Function activateMenu(Actor followerActor = None, string previousState = "", int page = 0)
 		Int Command_Group_Wait = 0
 		Int Command_Group_Follow = 1
@@ -595,7 +742,7 @@ State GroupMenu
 			XFLMain.XFL_SandboxAll()
 			OnFinishMenu()
 		Elseif ret == Command_Group_More ; Group Plugins
-			XFL_TriggerMenu(followerActor, "PluginMenu", GetState())
+			XFL_TriggerMenu(followerActor, GetMenuState("PluginMenu"), GetState())
 		Elseif ret == Command_Group_Back ; Group Back
 			XFL_TriggerMenu(followerActor, previousState, GetParentState(previousState))
 		Elseif ret == Command_Group_Exit ; Exit Group Menu
@@ -615,7 +762,7 @@ State GroupMenu
 	EndFunction
 EndState
 
-State StatsMenu
+State StatsMenu_Classic
 	Function activateMenu(Actor followerActor = None, string previousState = "", int page = 0)
 		Int Command_Stats_General = 0
 		Int Command_Stats_Resistances = 1
@@ -705,7 +852,7 @@ State StatsMenu
 	EndFunction
 EndState
 
-State PluginMenu
+State PluginMenu_Classic
 	Function activateMenu(Actor followerActor = None, string previousState = "", int page = 0)
 		Int Command_Plugin_Back = 7
 		Int Command_Plugin_Next = 8
@@ -715,7 +862,7 @@ State PluginMenu
 			XFL_MessageMod_Back = 1
 		EndIf
 		
-		bool isGroup = (previousState == "GroupMenu")
+		bool isGroup = (previousState == GetMenuState("GroupMenu"))
 		
 		Int[] pluginIndex = new Int[7] ; Store which Plugin Index corresponds to which Menu index
 				
@@ -821,95 +968,74 @@ Event OnFinishMenu()
 	XFL_Player.DispelSpell(XFL_SlowTime)
 EndEvent
 
+XFLMenuBase Function XFL_GetStandardMenu(string menuName)
+	XFLMenuBase menuBase = XFL_GetSelectionMenu()
+	if menuBase.GetMenuName() == menuName
+		return menuBase
+	endIf
+	menuBase = XFL_GetFollowerMenu()
+	if menuBase.GetMenuName() == menuName
+		return menuBase
+	endIf
+	menuBase = XFL_GetMagicMenu()
+	if menuBase.GetMenuName() == menuName
+		return menuBase
+	Endif
+	menuBase = XFL_GetStatsMenu()
+	if menuBase.GetMenuName() == menuName
+		return menuBase
+	Endif
+	return None
+EndFunction
+
 ; Menu Extensions
-Function XFL_OpenSelectionMenu()
+XFLSelectionMenu Function XFL_GetSelectionMenu()
 	If XFLMain.SKSEExtended == false
 		Debug.Trace("EFF WARNING: This feature requires SKSE.")
-		return
+		return None
 	Endif
-	XFLSelectionMenu selectionMenu = (Game.GetFormFromFile(0xE00, "XFLMenus.esp") as XFLSelectionMenu)
-	selectionMenu.SetMode(1) ; Mode is multi-selection
-	selectionMenu.OpenMenu(XFLMain.XFL_FollowerList, Self)
+	
+	return (Game.GetFormFromFile(0xE00, "XFLMenus.esp") as XFLSelectionMenu)
 EndFunction
 
-int Function XFL_OpenFollowerMenu(Actor follower)
+XFLWheel Function XFL_GetFollowerMenu()
 	If XFLMain.SKSEExtended == false
 		Debug.Trace("EFF WARNING: This feature requires SKSE.")
-		return -1
+		return None
 	Endif
-	XFLWheel wheelMenu = (Game.GetFormFromFile(0xE01, "XFLMenus.esp") as XFLWheel)
-	wheelMenu.ClearMenu()
-	wheelMenu.SetupMainMenu()
-	return wheelMenu.OpenMenu(follower)
+	
+	return (Game.GetFormFromFile(0xE01, "XFLMenus.esp") as XFLWheel)
 EndFunction
 
-int Function XFL_OpenMagicMenu(Actor follower)
+XFLMagicMenu Function XFL_GetMagicMenu()
 	If XFLMain.SKSEExtended == false
 		Debug.Trace("EFF WARNING: This feature requires SKSE.")
-		return -1
+		return None
 	Endif
-	XFLMagicMenu magicMenu = (Game.GetFormFromFile(0xE02, "XFLMenus.esp") as XFLMagicMenu)
-	return magicMenu.OpenMenu(follower)
+	return (Game.GetFormFromFile(0xE02, "XFLMenus.esp") as XFLMagicMenu)
 EndFunction
 
-int Function XFL_OpenStatsMenu(Form inForm)
+XFLStatsMenu Function XFL_GetStatsMenu()
 	If XFLMain.SKSEExtended == false
 		Debug.Trace("EFF WARNING: This feature requires SKSE.")
-		return -1
+		return None
 	Endif
-	XFLStatsMenu statsMenu = (Game.GetFormFromFile(0xE03, "XFLMenus.esp") as XFLStatsMenu)
-	return statsMenu.OpenMenu(inForm)
+	return (Game.GetFormFromFile(0xE03, "XFLMenus.esp") as XFLStatsMenu)
 EndFunction
 
 Event OnSelectForm(string eventName, string strArg, float numArg, Form sender)
 	if sender
 		Form selection = (sender as XFLSelectionMenu).GetSelection()
-		XFL_OpenStatsMenu(selection)
-		; if (selection as FormList)
-		; 	int size = (selection as FormList).GetSize()
-		; 	int i = 0
-		; 	Debug.Trace("Length: " + size)
-		; 	While i < size
-		; 		Debug.Trace("Multi Selected: " + (selection as FormList).GetAt(i))
-		; 		i += 1
-		; 	EndWhile
-		; elseif selection != None
-		; 	Debug.Trace("Single Selected: " + selection)
-		; endif
-	Endif
-EndEvent
-
-Event OnExtendedMenu(int result, Form receiver)
-	bool isGroup = false
-	int size = 0
-	If (receiver as Actor)
-		isGroup = false
-		size = 1
-	Elseif (receiver as FormList)
-		isGroup = true
-		size = (receiver as FormList).GetSize()
-	Endif
-
-
-	If result == 0 ; Wait
-		XFLMain.XFL_WaitList(receiver)
-	Elseif result == 1 ; Trade - Cannot trade while in group select
-		If !isGroup
-			(receiver as Actor).OpenInventory()
-		Endif
-	Elseif result == 2 ; Aggressive
-
-	Elseif result == 3 ; More
-
-	Elseif result == 4 ; Relax
-		XFLMain.XFL_SandboxList(receiver)
-	Elseif result == 5 ; Stats
-		XFL_OpenStatsMenu(receiver)
-	Elseif result == 6 ; Talk - Cannot talk while in group select
-		If !isGroup
-			(receiver as Actor).Activate(Game.GetPlayer(), true)
-		Endif
-	Elseif result == 7 ; Exit
-		; Do nothing
+		if (selection as FormList)
+			int size = (selection as FormList).GetSize()
+			int i = 0
+			Debug.Trace("Length: " + size)
+			While i < size
+				Debug.Trace("Multi Selected: " + (selection as FormList).GetAt(i))
+				i += 1
+			EndWhile
+		elseif selection != None
+			Debug.Trace("Single Selected: " + selection)
+		endif
 	Endif
 EndEvent

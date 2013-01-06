@@ -75,7 +75,7 @@ Function XFL_ForceClearAll()
 EndFunction
 
 ; Called when the plugin is disabled
-Event onDisabled()
+Event OnDisabled()
 	XFL_ForceClearAll()
 EndEvent
 

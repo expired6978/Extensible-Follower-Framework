@@ -47,7 +47,7 @@ Function ChangeCombatStyle(Actor follower = None, int style = 0)
 	Endif
 EndFunction
 
-Event OnDisable()
+Event OnDisabled()
 	XFLMain.XFL_SendActionEvent(GetIdentifier(), 0)
 EndEvent
 

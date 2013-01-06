@@ -20,7 +20,7 @@ FormList Property XFL_FollowerList  Auto
 Spell Property XFL_Portal Auto
 
 XFLOutfit Property XFL_OutfitController Auto
-XFLPanel Property XFL_Panel Auto
+;XFLPanel Property XFL_Panel Auto
 
 float[] Property recruitTimes Auto
 bool[] Property tmRestore Auto
@@ -121,9 +121,9 @@ Function XFL_AddFollower(Actor FollowerActor)
 
 	XFL_FollowerList.AddForm(FollowerActor) ; Used by XFLSelectionMenu
 
-	If XFL_Panel
-		XFL_Panel.AddActors(FollowerActor)
-	Endif
+	;If XFL_Panel
+	;	XFL_Panel.AddActors(FollowerActor)
+	;Endif
 
 	XFL_OutfitController.XFL_RemovePersistentRef(FollowerActor) ; Remove outfit persistence, we don't need it as long as they are with us
 	XFL_SendPluginEvent(PLUGIN_EVENT_ADD_FOLLOWER, FollowerActor)
@@ -171,9 +171,9 @@ Function XFL_RemoveFollower(Actor follower, Int iMessage = 0, Int iSayLine = 1)
 		XFL_OutfitController.XFL_AddPersistentRef(follower) ; Add outfit persistent
 		XFL_FollowerList.RemoveAddedForm(follower)
 
-		If XFL_Panel
-			XFL_Panel.RemoveActors(follower)
-		Endif
+		;If XFL_Panel
+		;	XFL_Panel.RemoveActors(follower)
+		;Endif
 
 		XFL_SendPluginEvent(PLUGIN_EVENT_REMOVE_FOLLOWER, follower) ; Event should happen before everything is reset
 		XFL_ClearAlias(follower)
@@ -194,9 +194,9 @@ Function XFL_RemoveDeadFollower(Actor follower)
 		follower.RemoveFromFaction(FollowerScript.pCurrentHireling)
 		XFL_FollowerList.RemoveAddedForm(follower)
 
-		If XFL_Panel
-			XFL_Panel.RemoveActors(follower)
-		Endif
+		;If XFL_Panel
+		;	XFL_Panel.RemoveActors(follower)
+		;Endif
 
 		XFL_SendPluginEvent(PLUGIN_EVENT_REMOVE_DEAD_FOLLOWER, follower)
 		XFL_ClearAlias(follower)

@@ -116,7 +116,7 @@ Function XFL_ForceClearAll()
 	EndWhile
 EndFunction
 
-Event OnDisable()
+Event OnDisabled()
 	XFL_ForceClearAll()
 EndEvent
 

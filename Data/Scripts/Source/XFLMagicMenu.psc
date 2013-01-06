@@ -1,4 +1,4 @@
-Scriptname XFLMagicMenu extends Quest  
+Scriptname XFLMagicMenu extends XFLMenuBase  
 
 Message Property FollowerMagicMenuMessage Auto
 
@@ -9,8 +9,12 @@ Actor _actor = None
 
 float tempSoundDB = 0.0
 
-int Function OpenMenu(Actor follower)
-	_actor = follower
+string Function GetMenuName()
+	return "MagicMenuExt"
+EndFunction
+
+int Function OpenMenu(Form akForm, Form akReceiver = None)
+	_actor = akForm as Actor
 	RegisterForMenu(_rootMenu)
 	return FollowerMagicMenuMessage.Show()
 EndFunction

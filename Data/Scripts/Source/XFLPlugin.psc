@@ -53,12 +53,12 @@ Function activateGroupMenu(int page, Actor follower) ; Re-implement
 EndFunction
 
 ; Called when the plugin is enabled
-Event onEnabled()
+Event OnEnabled()
 	; Do nothing
 EndEvent
 
 ; Called when the plugin is disabled
-Event onDisabled()
+Event OnDisabled()
 	; Do nothing
 EndEvent
 

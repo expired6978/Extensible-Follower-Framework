@@ -1,4 +1,4 @@
-Scriptname XFLStatsMenu extends Quest
+Scriptname XFLStatsMenu extends XFLMenuBase
 
 Message Property FollowerStats Auto
 
@@ -7,7 +7,11 @@ string _proxyMenu = "_root.MessageMenu.proxyMenu.ActorStatsPanelFader.actorStats
 
 Form _form = None
 
-int Function OpenMenu(Form inForm)
+string Function GetMenuName()
+	return "StatsMenu"
+EndFunction
+
+int Function OpenMenu(Form inForm, Form akReceiver = None)
 	_form = inForm
 	RegisterForMenu(_rootMenu)
 	return FollowerStats.Show()

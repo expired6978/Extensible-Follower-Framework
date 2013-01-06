@@ -25,14 +25,14 @@ Function activateMenu(int page, Actor follower) ; Re-implement
 	;Game.FadeOutGame(true, true, 0, 2.5)
 	;Utility.Wait(1)
 	FollowerMenu.OnFinishMenu()
-	;XFLMain.XFL_SendActionEvent(GetIdentifier(), 0, follower)
+	XFLMain.XFL_SendActionEvent(GetIdentifier(), 0, follower)
 	;Debug.MessageBox("$$loadMovie=statssheetmenu$$")
 	;XFLMain.XFL_OpenSelectionMenu()
 	;int ret = FollowerMenu.XFL_OpenFollowerMenu(follower)
 	;FollowerMenu.OnExtendedMenu(ret, follower)
 	;Game.ShowLimitedRaceMenu()
-	Book myBook = Game.GetFormFromFile(0x1AD14, "Skyrim.esm") as Book
-	Debug.Trace("Read: " + myBook.IsRead())
+	;Book myBook = Game.GetFormFromFile(0x1AD14, "Skyrim.esm") as Book
+	;Debug.Trace("Read: " + myBook.IsRead())
 
 	;RegisterForSingleUpdate(1)
 	;XFLMain.XFL_OpenMagicMenu(follower)

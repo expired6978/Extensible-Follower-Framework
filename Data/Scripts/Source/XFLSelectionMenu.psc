@@ -1,4 +1,4 @@
-Scriptname XFLSelectionMenu extends Quest
+Scriptname XFLSelectionMenu extends XFLMenuBase
 
 Message Property FollowerSelection Auto
 FormList Property SelectedForms  Auto  
@@ -29,7 +29,7 @@ Function SetMode(int mode)
 	endif
 EndFunction
 
-bool Function OpenMenu(Form aForm, Form aReceiver)
+int Function OpenMenu(Form aForm, Form aReceiver = None)
 	_form = aForm
 	_receiver = aReceiver
 	_selected = None
@@ -38,7 +38,11 @@ bool Function OpenMenu(Form aForm, Form aReceiver)
 	RegisterForModEvent("SelectionMenu_SelectForm", "OnSelect")
 	RegisterForModEvent("SelectionMenu_SelectionReady", "OnSelectForm")
 	_receiver.RegisterForModEvent("SelectionMenu_SelectionChanged", "OnSelectForm")
-	return FollowerSelection.Show() as bool
+	return FollowerSelection.Show()
+EndFunction
+
+string Function GetMenuName()
+	return "SelectionMenu"
 EndFunction
 
 Event OnSelect(string eventName, string strArg, float numArg, Form formArg)

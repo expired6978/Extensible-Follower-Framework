@@ -40,36 +40,6 @@ Event OnActionEvent(int akCmd, Form akForm1 = None, Form akForm2 = None, int aiV
 	Endif
 EndEvent
 
-; Command: Collect
-; Function XFL_BeginCollection(Actor follower = None, Int type = 3)
-; 	If follower != None
-; 		XFL_StartCollecting(follower, type)
-; 	Else
-; 		int i = 0
-; 		While i < XFLMain.XFL_GetMaximum()
-; 			If XFLMain.XFL_FollowerAliases[i] && XFLMain.XFL_FollowerAliases[i].GetActorRef() != None
-; 				XFL_StartCollecting(XFLMain.XFL_FollowerAliases[i].GetActorRef(), type)
-; 			EndIf
-; 			i += 1
-; 		EndWhile
-; 	Endif
-; Endfunction
-
-; ; Command: Stop Collect
-; Function XFL_EndCollection(Actor follower = None)
-; 	If follower != None
-; 		XFL_StopCollecting(follower)
-; 	Else
-; 		int i = 0
-; 		While i <= XFLMain.XFL_GetMaximum()
-; 			If XFLMain.XFL_FollowerAliases[i] && XFLMain.XFL_FollowerAliases[i].GetActorRef() != None
-; 				XFL_StopCollecting(XFLMain.XFL_FollowerAliases[i].GetActorRef())
-; 			EndIf
-; 			i += 1
-; 		EndWhile
-; 	Endif
-; Endfunction
-
 ; Initializes a collection state
 Function XFL_StartCollecting(Actor follower, Int type = 3)
 	If type < 3 || type > 11 ; Invalid collection type
@@ -126,7 +96,7 @@ Function XFL_ForceClearAll()
 	EndWhile
 EndFunction
 
-Event OnDisable()
+Event OnDisabled()
 	XFL_ForceClearAll()
 EndEvent
 
@@ -167,7 +137,7 @@ Function XFL_TriggerMenu(Actor followerActor, string menuState = "", string prev
 	activateSubMenu(followerActor, previousState, page)
 EndFunction
 
-State MenuCollect ; Choose which type of outfit to wear
+State MenuCollect
 	Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
 		Int Collect_Gather = 0
 		Int Collect_Stop = 1
@@ -186,7 +156,7 @@ State MenuCollect ; Choose which type of outfit to wear
 		If actorRef != None
 			XFL_MessageMod_State = actorRef.GetActorValue("WaitingForPlayer")
 		Else
-			XFL_MessageMod_State = 0
+			XFL_MessageMod_State = 3
 		Endif
 		
 		int ret = FollowerCollect.Show()

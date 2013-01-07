@@ -10,6 +10,9 @@ Event OnPlayerLoadGame()
 	If !isDLC1Loaded()
 		Debug.Trace("EFF WARNING: No Dawnguard detected, some features will be unavailable.")
 	Endif
+	If !isMENULoaded()
+		Debug.Trace("EFF WARNING: Menu system disabled, plugin failed to loaded.")
+	Endif
 EndEvent
 
 bool Function isSKSELoaded()
@@ -31,6 +34,18 @@ bool Function isDLC1Loaded()
 		return true
 	Else
 		XFLMain.DLC1Extended = false
+	Endif
+	return false
+EndFunction
+
+bool Function isMENULoaded()
+	bool MENUCheck = (Game.GetFormFromFile(0xE00, "XFLMenus.esp") != None)
+	If MENUCheck
+		XFLMain.MENUExtended = true
+		return true
+	Else
+		XFLMain.MENUExtended = false
+		XFLMenu.XFL_Config_UseClassicMenus.value = 1
 	Endif
 	return false
 EndFunction

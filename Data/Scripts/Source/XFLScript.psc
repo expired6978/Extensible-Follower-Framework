@@ -39,6 +39,7 @@ int Property PLUGIN_EVENT_REMOVE_DEAD_FOLLOWER = 0x02 Autoreadonly
 ; Check for game extensions
 bool Property SKSEExtended Auto ; SKSE Loaded
 bool Property DLC1Extended Auto ; DLC1 Dawnguard Loaded
+bool Property MENUExtended Auto ; Menu System Loaded
 
 Function XFL_RegisterPlugin(Quest questRef)
 	If XFL_FollowerPlugins

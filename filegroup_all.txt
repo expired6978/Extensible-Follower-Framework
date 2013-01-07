@@ -3,6 +3,7 @@ Interface\selectionmenu.swf
 Interface\statssheetmenu.swf
 Interface\followermenu.swf
 Interface\messagebox.swf
+Interface\xflmenus\icons_category_psychosteve.swf
 Interface\res\XFLLogo.dds
 Interface\translations\XFLMenus_ENGLISH.txt
 Scripts\EXP_DialogueFollowerScript.pex

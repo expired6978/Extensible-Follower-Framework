@@ -25,7 +25,7 @@ Event OnMenuOpen(string menuName)
 		float[] params = new Float[2]
 		params[0] = 0
 		params[1] = 0
-		UI.InvokeNumberA(_rootMenu, _proxyMenu + "SetPlatform", params)
+		UI.InvokeFloatA(_rootMenu, _proxyMenu + "SetPlatform", params)
 		UI.InvokeForm(_rootMenu, _proxyMenu + "Menu_mc.SetMagicMenuExtActor", _actor)
 
 		; Kill the MessageBox UI OK Sound

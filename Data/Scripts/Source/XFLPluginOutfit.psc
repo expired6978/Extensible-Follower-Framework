@@ -72,13 +72,13 @@ EndFunction
 
 Function activateMenu(int page, Actor follower) ; Re-implement
 	isGroup = false
-	XFL_TriggerMenu(follower, "SubMenuType", "PluginMenu", page)
+	XFL_TriggerMenu(follower, FollowerMenu.GetMenuState("SubMenuType"), FollowerMenu.GetMenuState("PluginMenu"), page)
 EndFunction
 
 Function activateGroupMenu(int page, Actor follower) ; Re-implement
 	; Do nothing
 	isGroup = true
-	XFL_TriggerMenu(follower, "SubMenuType", "PluginMenu", page)
+	XFL_TriggerMenu(follower, FollowerMenu.GetMenuState("SubMenuType"), FollowerMenu.GetMenuState("PluginMenu"), page)
 EndFunction
 
 Function XFL_TriggerMenu(Actor followerActor, string menuState = "", string previousState = "", int page = 0)
@@ -90,7 +90,7 @@ Function activateSubMenu(Actor followerActor, string previousState = "", int pag
 	; Do nothing in blank state
 EndFunction
 
-State SubMenuType ; Choose which type of outfit to wear
+State SubMenuType_Classic ; Choose which type of outfit to wear
 	Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
 		int OutfitMenu_Default = 0
 		int OutfitMenu_Sleepwear = 1
@@ -106,12 +106,12 @@ State SubMenuType ; Choose which type of outfit to wear
 		int ret = FollowerOutfitTypeMenu.Show()
 		If ret == OutfitMenu_Default
 			Sleepwear = false
-			XFL_TriggerMenu(followerActor, "SubMenuOutfit", GetState(), page)
+			XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("SubMenuOutfit"), GetState(), page)
 		Elseif ret == OutfitMenu_Sleepwear
 			Sleepwear = true
-			XFL_TriggerMenu(followerActor, "SubMenuOutfit", GetState(), page)
+			XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("SubMenuOutfit"), GetState(), page)
 		Elseif ret == OutfitMenu_Back
-			FollowerMenu.XFL_TriggerMenu(followerActor, "PluginMenu", FollowerMenu.GetParentState("PluginMenu"), page) ; Force a back all the way to the plugin menu
+			FollowerMenu.XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("PluginMenu"), FollowerMenu.GetParentState("PluginMenu"), page) ; Force a back all the way to the plugin menu
 		Elseif ret == OutfitMenu_Exit
 			FollowerMenu.OnFinishMenu()
 		Endif
@@ -120,7 +120,7 @@ State SubMenuType ; Choose which type of outfit to wear
 	EndFunction
 EndState
 
-State SubMenuOutfit
+State SubMenuOutfit_Classic
 	Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
 		int OutfitMenu_None = 0
 		int OutfitMenu_Clothing = 1
@@ -145,13 +145,13 @@ State SubMenuOutfit
 			FollowerMenu.OnFinishMenu()
 			XFLMain.XFL_SendActionEvent(GetIdentifier(), 0, actorRef, None, Sleepwear as Int)
 		Elseif ret == OutfitMenu_Clothing
-			XFL_TriggerMenu(followerActor, "SubMenuOutfitClothing", GetState(), page)
+			XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("SubMenuOutfitClothing"), GetState(), page)
 		Elseif ret == OutfitMenu_LightArmor
-			XFL_TriggerMenu(followerActor, "SubMenuOutfitLight", GetState(), page)
+			XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("SubMenuOutfitLight"), GetState(), page)
 		Elseif ret == OutfitMenu_HeavyArmor
-			XFL_TriggerMenu(followerActor, "SubMenuOutfitHeavy", GetState(), page)
+			XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("SubMenuOutfitHeavy"), GetState(), page)
 		Elseif ret == OutfitMenu_Back
-			XFL_TriggerMenu(followerActor, "SubMenuType", "PluginMenu", page)
+			XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("SubMenuType"), FollowerMenu.GetMenuState("PluginMenu"), page)
 		Elseif ret == OutfitMenu_Exit
 			FollowerMenu.OnFinishMenu()
 		Endif
@@ -160,7 +160,7 @@ State SubMenuOutfit
 	EndFunction
 EndState
 
-State SubMenuOutfitClothing
+State SubMenuOutfitClothing_Classic
 	Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
 		int OutfitMenu_Back = 8
 		int OutfitMenu_Exit = 9
@@ -181,7 +181,7 @@ State SubMenuOutfitClothing
 			FollowerMenu.OnFinishMenu()
 			XFLMain.XFL_SendActionEvent(GetIdentifier(), 0, actorRef, Outfits_Clothing[ret], Sleepwear as Int)
 		Elseif ret == OutfitMenu_Back
-			XFL_TriggerMenu(followerActor, previousState, "SubMenuOutfit", page)
+			XFL_TriggerMenu(followerActor, previousState, FollowerMenu.GetMenuState("SubMenuOutfit"), page)
 		Elseif ret == OutfitMenu_Exit
 			FollowerMenu.OnFinishMenu()
 		Endif
@@ -190,7 +190,7 @@ State SubMenuOutfitClothing
 	EndFunction
 EndState
 
-State SubMenuOutfitLight
+State SubMenuOutfitLight_Classic
 	Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
 		int OutfitMenu_Back = 7
 		int OutfitMenu_Exit = 8
@@ -211,7 +211,7 @@ State SubMenuOutfitLight
 			FollowerMenu.OnFinishMenu()
 			XFLMain.XFL_SendActionEvent(GetIdentifier(), 0, actorRef, Outfits_LightArmor[ret], Sleepwear as Int)
 		Elseif ret == OutfitMenu_Back
-			XFL_TriggerMenu(followerActor, previousState, "SubMenuOutfit", page)
+			XFL_TriggerMenu(followerActor, previousState, FollowerMenu.GetMenuState("SubMenuOutfit"), page)
 		Elseif ret == OutfitMenu_Exit
 			FollowerMenu.OnFinishMenu()
 		Endif
@@ -220,7 +220,7 @@ State SubMenuOutfitLight
 	EndFunction
 EndState
 
-State SubMenuOutfitHeavy
+State SubMenuOutfitHeavy_Classic
 	Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
 		int OutfitMenu_Back = 7
 		int OutfitMenu_Exit = 8
@@ -241,7 +241,7 @@ State SubMenuOutfitHeavy
 			FollowerMenu.OnFinishMenu()
 			XFLMain.XFL_SendActionEvent(GetIdentifier(), 0, actorRef, Outfits_HeavyArmor[ret], Sleepwear as Int)
 		Elseif ret == OutfitMenu_Back
-			XFL_TriggerMenu(followerActor, previousState, "SubMenuOutfit", page)
+			XFL_TriggerMenu(followerActor, previousState, FollowerMenu.GetMenuState("SubMenuOutfit"), page)
 		Elseif ret == OutfitMenu_Exit
 			FollowerMenu.OnFinishMenu()
 		Endif

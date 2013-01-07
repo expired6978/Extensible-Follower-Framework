@@ -89,12 +89,12 @@ EndEvent
 ; Menu hierarchy
 Function activateMenu(int page, Actor follower) ; Re-implement
 	isGroup = false
-	XFL_TriggerMenu(follower, "MenuImportance", "PluginMenu", page)
+	XFL_TriggerMenu(follower, FollowerMenu.GetMenuState("MenuImportance"), FollowerMenu.GetMenuState("PluginMenu"), page)
 EndFunction
 
 Function activateGroupMenu(int page, Actor follower) ; Re-implement
 	isGroup = true
-	XFL_TriggerMenu(follower, "MenuImportance", "PluginMenu", page)
+	XFL_TriggerMenu(follower, FollowerMenu.GetMenuState("MenuImportance"), FollowerMenu.GetMenuState("PluginMenu"), page)
 EndFunction
 
 Bool Function showMenu(Actor follower) ; Re-implement
@@ -114,7 +114,7 @@ Function XFL_TriggerMenu(Actor followerActor, string menuState = "", string prev
 	activateSubMenu(followerActor, previousState, page)
 EndFunction
 
-State MenuImportance ; Choose which type of outfit to wear
+State MenuImportance_Classic ; Choose which type of outfit to wear
 	Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
 		Int Importance_Back = 3
 		Int Importance_Exit = 4
@@ -134,7 +134,7 @@ State MenuImportance ; Choose which type of outfit to wear
 			FollowerMenu.OnFinishMenu()
 			XFLMain.XFL_SendActionEvent(GetIdentifier(), ret, actorRef)
 		Elseif ret == Importance_Back
-			FollowerMenu.XFL_TriggerMenu(followerActor, "PluginMenu", FollowerMenu.GetParentState("PluginMenu"), page) ; Force a back all the way to the plugin menu
+			FollowerMenu.XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("PluginMenu"), FollowerMenu.GetParentState("PluginMenu"), page) ; Force a back all the way to the plugin menu
 		Elseif ret == Importance_Exit
 			FollowerMenu.OnFinishMenu()
 		EndIf

@@ -11,8 +11,9 @@ int _lastIndex = 0
 string[] _optionText
 string[] _optionLabelText
 string[] _optionIcon
-float[] _optionIconColor
+int[] _optionIconColor
 bool[] _optionEnabled
+int[] _optionTextColor
 
 string Function GetMenuName()
 	return "WheelMenu"
@@ -22,34 +23,28 @@ Function OnInit()
 	_optionText = new String[8]
 	_optionLabelText = new String[8]
 	_optionIcon = new String[8]
-	_optionIconColor = new Float[8]
+	_optionIconColor = new Int[8]
 	_optionEnabled = new Bool[8]
+	_optionTextColor = new Int[8]
 	ClearMenu()
 EndFunction
 
 int Function OpenMenu(Form akForm, Form akReceiver = None)
 	_form = akForm
-	RegisterForMenu(_rootMenu)
 	RegisterForModEvent("XFLWheel_SetOption", "OnSelectOption")
+	RegisterForModEvent("XFLWheel_LoadMenu", "OnLoadMenu")
 	return FollowerWheel.Show()
 EndFunction
 
-Event OnMenuOpen(string menuName)
-	If menuName == _rootMenu
-		UpdateWheelEnabledOptions()
-		UpdateWheelForm()
-		UpdateWheelOptions()
-		UpdateWheelOptionLabels()
-		UpdateWheelIcons()
-		UpdateWheelIconColors()
-		UpdateWheelSelection()
-	Endif
-EndEvent
-
-Event OnMenuClose(string menuName)
-	If menuName == _rootMenu
-		UnregisterForMenu(_rootMenu)
-	Endif
+Event OnLoadMenu(string eventName, string strArg, float numArg, Form formArg)
+	UpdateWheelEnabledOptions()
+	UpdateWheelForm()
+	UpdateWheelOptions()
+	UpdateWheelOptionLabels()
+	UpdateWheelIcons()
+	UpdateWheelIconColors()
+	UpdateWheelSelection()
+	UpdateWheelTextColors()
 EndEvent
 
 Event OnSelectOption(string eventName, string strArg, float numArg, Form formArg)
@@ -93,6 +88,15 @@ Function ClearMenu()
 	_optionIconColor[6] = 0xFFFFFF
 	_optionIconColor[7] = 0xFFFFFF
 
+	_optionTextColor[0] = 0xFFFFFF
+	_optionTextColor[1] = 0xFFFFFF
+	_optionTextColor[2] = 0xFFFFFF
+	_optionTextColor[3] = 0xFFFFFF
+	_optionTextColor[4] = 0xFFFFFF
+	_optionTextColor[5] = 0xFFFFFF
+	_optionTextColor[6] = 0xFFFFFF
+	_optionTextColor[7] = 0xFFFFFF
+
 	_optionEnabled[0] = false
 	_optionEnabled[1] = false
 	_optionEnabled[2] = false
@@ -127,7 +131,13 @@ EndFunction
 
 Function SetWheelOptionIconColor(int id, int color)
 	If id >= 0 && id < 8
-		_optionIconColor[id] = color as float
+		_optionIconColor[id] = color
+	Endif
+EndFunction
+
+Function SetWheelOptionTextColor(int id, int color)
+	If id >= 0 && id < 8
+		_optionTextColor[id] = color
 	Endif
 EndFunction
 
@@ -142,7 +152,7 @@ Function UpdateWheelSelection()
 	float[] params = new float[2]
 	params[0] = _lastIndex as float
 	params[1] = true as float
-	UI.InvokeNumberA(_rootMenu, _proxyMenu + "setWheelSelection", params)
+	UI.InvokeFloatA(_rootMenu, _proxyMenu + "setWheelSelection", params)
 EndFunction
 
 Function UpdateWheelForm()
@@ -171,5 +181,9 @@ Function UpdateWheelIcons()
 EndFunction
 
 Function UpdateWheelIconColors()
-	UI.InvokeNumberA(_rootMenu, _proxyMenu + "setWheelOptionIconColors", _optionIconColor)
+	UI.InvokeIntA(_rootMenu, _proxyMenu + "setWheelOptionIconColors", _optionIconColor)
+EndFunction
+
+Function UpdateWheelTextColors()
+	UI.InvokeIntA(_rootMenu, _proxyMenu + "setWheelOptionTextColors", _optionTextColor)
 EndFunction

@@ -73,13 +73,13 @@ EndFunction
 ; Called when the menu is activated
 Function activateMenu(int page, Actor follower) ; Re-implement
 	isGroup = false
-	activateSubMenu(follower, "PluginMenu", page)
+	activateSubMenu(follower, FollowerMenu.GetMenuState("PluginMenu"), page)
 EndFunction
 
 ; Called when the group menu is activated
 Function activateGroupMenu(int page, Actor follower) ; Re-implement
 	isGroup = true
-	activateSubMenu(follower, "PluginMenu", page)
+	activateSubMenu(follower, FollowerMenu.GetMenuState("PluginMenu"), page)
 EndFunction
 
 Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
@@ -97,7 +97,7 @@ Function activateSubMenu(Actor followerActor, string previousState = "", int pag
 		FollowerMenu.OnFinishMenu()
 		XFLMain.XFL_SendActionEvent(GetIdentifier(), 0, actorRef, None, ret)
 	Elseif ret == Combat_Back
-		FollowerMenu.XFL_TriggerMenu(followerActor, "PluginMenu", FollowerMenu.GetParentState("PluginMenu"), page) ; Force a back all the way to the plugin menu
+		FollowerMenu.XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("PluginMenu"), FollowerMenu.GetParentState("PluginMenu"), page) ; Force a back all the way to the plugin menu
 	Elseif ret == Combat_Exit
 		FollowerMenu.OnFinishMenu()
 	Endif

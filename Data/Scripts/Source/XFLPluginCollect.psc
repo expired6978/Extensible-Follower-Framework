@@ -112,12 +112,12 @@ EndEvent
 ; Menu hierarchy
 Function activateMenu(int page, Actor follower) ; Re-implement
 	isGroup = false
-	XFL_TriggerMenu(follower, "MenuCollect", "PluginMenu", page)
+	XFL_TriggerMenu(follower, FollowerMenu.GetMenuState("MenuCollect"), FollowerMenu.GetMenuState("PluginMenu"), page)
 EndFunction
 
 Function activateGroupMenu(int page, Actor follower) ; Re-implement
 	isGroup = true
-	XFL_TriggerMenu(follower, "MenuCollect", "PluginMenu", page)
+	XFL_TriggerMenu(follower, FollowerMenu.GetMenuState("MenuCollect"), FollowerMenu.GetMenuState("PluginMenu"), page)
 EndFunction
 
 Bool Function showMenu(Actor follower) ; Re-implement
@@ -137,7 +137,7 @@ Function XFL_TriggerMenu(Actor followerActor, string menuState = "", string prev
 	activateSubMenu(followerActor, previousState, page)
 EndFunction
 
-State MenuCollect
+State MenuCollect_Classic
 	Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
 		Int Collect_Gather = 0
 		Int Collect_Stop = 1
@@ -161,14 +161,14 @@ State MenuCollect
 		
 		int ret = FollowerCollect.Show()
 		If ret == Collect_Gather
-			XFL_TriggerMenu(followerActor, "MenuGather", GetState(), page)
+			XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("MenuGather"), GetState(), page)
 			FollowerMenu.OnFinishMenu()
 		Elseif ret == Collect_Stop
 			;XFL_EndCollection(followerActor)
 			XFLMain.XFL_SendActionEvent(GetIdentifier(), 1, actorRef)
 			FollowerMenu.OnFinishMenu()
 		Elseif ret == Collect_Back
-			FollowerMenu.XFL_TriggerMenu(followerActor, "PluginMenu", FollowerMenu.GetParentState("PluginMenu"), page) ; Force a back all the way to the plugin menu
+			FollowerMenu.XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("PluginMenu"), FollowerMenu.GetParentState("PluginMenu"), page) ; Force a back all the way to the plugin menu
 		Elseif ret == Collect_Exit
 			FollowerMenu.OnFinishMenu()
 		EndIf
@@ -177,7 +177,7 @@ State MenuCollect
 	EndFunction
 EndState
 
-State MenuGather ; Choose which type of outfit to wear
+State MenuGather_Classic ; Choose which type of outfit to wear
 	Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
 		Int Gather_Back = 9
 		
@@ -202,7 +202,7 @@ State MenuGather ; Choose which type of outfit to wear
 			FollowerMenu.OnFinishMenu()
 			XFLMain.XFL_SendActionEvent(GetIdentifier(), 0, actorRef, None, ret + 3)
 		Elseif ret == Gather_Back
-			XFL_TriggerMenu(followerActor, "MenuCollect", "PluginMenu", page)
+			XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("MenuCollect"), FollowerMenu.GetMenuState("PluginMenu"), page)
 		EndIf
 		
 		GoToState("")

@@ -35,6 +35,7 @@ int Function OpenMenu(Form aForm, Form aReceiver = None)
 	_selected = None
 	SelectedForms.Revert()
 	RegisterForMenu(_rootMenu)
+	RegisterForModEvent("SelectionMenu_LoadMenu", "OnLoadMenu")
 	RegisterForModEvent("SelectionMenu_SelectForm", "OnSelect")
 	RegisterForModEvent("SelectionMenu_SelectionReady", "OnSelectForm")
 	_receiver.RegisterForModEvent("SelectionMenu_SelectionChanged", "OnSelectForm")
@@ -57,15 +58,13 @@ Event OnSelectForm(string eventName, string strArg, float numArg, Form formArg)
 	SendModEvent("SelectionMenu_SelectionChanged", "", numArg)
 EndEvent
 
-Event OnMenuOpen(string menuName)
-	If menuName == _rootMenu
-		UI.InvokeForm(_rootMenu, _proxyMenu + "SetSelectionMenuFormData", _form)
-		UI.InvokeNumber(_rootMenu, _proxyMenu + "SetSelectionMenuMode", _mode as float)
+Event OnLoadMenu(string eventName, string strArg, float numArg, Form formArg)
+	UI.InvokeForm(_rootMenu, _proxyMenu + "SetSelectionMenuFormData", _form)
+	UI.InvokeFloat(_rootMenu, _proxyMenu + "SetSelectionMenuMode", _mode as float)
 
-		SoundDescriptor sDescriptor = (Game.GetForm(0x137E7) as Sound).GetDescriptor()
-		tempSoundDB = sDescriptor.GetDecibelAttenuation()
-		sDescriptor.SetDecibelAttenuation(100.0)
-	Endif
+	SoundDescriptor sDescriptor = (Game.GetForm(0x137E7) as Sound).GetDescriptor()
+	tempSoundDB = sDescriptor.GetDecibelAttenuation()
+	sDescriptor.SetDecibelAttenuation(100.0)
 EndEvent
 
 Event OnMenuClose(string menuName)

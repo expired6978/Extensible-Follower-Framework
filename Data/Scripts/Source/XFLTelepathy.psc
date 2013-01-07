@@ -16,7 +16,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 		XFLMenu.OnStartMenu()
 		int ret = FollowerCommandTelepathy.Show()
 		If ret == Telepathy_Group
-			XFLMenu.XFL_TriggerMenu(None, "GroupMenu") ; Group
+			XFLMenu.XFL_TriggerMenu(None, XFLMenu.GetMenuState("GroupMenu")) ; Group
 		Elseif ret == Telepathy_Select
 			selected = XFLMenu.XFL_SelectFollower() ; Selected
 		Else
@@ -24,7 +24,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 		Endif
 	Endif
 	If selected ; Single follower selected
-		XFLMenu.XFL_TriggerMenu(selected, "CommandMenu")
+		XFLMenu.XFL_TriggerMenu(selected, XFLMenu.GetMenuState("CommandMenu"))
 	Else
 		XFLMenu.OnFinishMenu()
 	Endif

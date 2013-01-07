@@ -25,6 +25,7 @@ sub copyFile
 $skyrimPath		= $ENV{'SkyrimPath'} or error("\$SkyrimPath env var not set.");
 $archivePath	= $skyrimPath . "\\Archive.exe";
 
+$swfBuildPath	= "..\\build";
 $archiveOutPath	= "_generated";
 
 $fileGroupScriptsPath = "filegroup_scripts.txt";

@@ -13,20 +13,12 @@ EndFunction
 
 int Function OpenMenu(Form inForm, Form akReceiver = None)
 	_form = inForm
-	RegisterForMenu(_rootMenu)
+	RegisterForModEvent("XFLStatPanel_LoadMenu", "OnLoadSettings")
 	return FollowerStats.Show()
 EndFunction
 
-Event OnMenuOpen(string menuName)
-	If menuName == _rootMenu
-		UpdateStatsForm()
-	Endif
-EndEvent
-
-Event OnMenuClose(string menuName)
-	If menuName == _rootMenu
-		UnregisterForMenu(_rootMenu)
-	Endif
+Event OnLoadSettings(string eventName, string strArg, float numArg, Form formArg)
+	UpdateStatsForm()
 EndEvent
 
 Function UpdateStatsForm()

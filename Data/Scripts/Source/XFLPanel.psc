@@ -2,8 +2,12 @@ Scriptname XFLPanel extends SKI_WidgetBase
 
 XFLScript XFLMain = None
 
+string function GetWidgetSource()
+	return "followerpanel.swf"
+endFunction
+
 string function GetWidgetType()
-	return "followerpanel"
+	return "XFLPanel"
 endFunction
 
 ; @override SKI_WidgetBase
@@ -12,7 +16,6 @@ event OnWidgetReset()
 
 	XFLMain = (Game.GetFormFromFile(0x48C9, "XFLMain.esm") as XFLScript)
 	if XFLMain
-		Debug.Trace("Adding: " + XFLMain.XFL_FollowerList)
 		AddActors(XFLMain.XFL_FollowerList)
 	endIf
 endEvent

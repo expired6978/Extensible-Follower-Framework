@@ -62,7 +62,7 @@ Event OnActionEvent(int akCmd, Form akForm1 = None, Form akForm2 = None, int aiV
 	Endif
 EndEvent
 
-Bool Function showMenu(Actor follower) ; Re-implement
+Bool Function showMenu(Form akForm) ; Re-implement
 	return true
 EndFunction
 
@@ -70,28 +70,28 @@ Bool Function showGroupMenu() ; Re-implement
 	return true
 EndFunction
 
-Function activateMenu(int page, Actor follower) ; Re-implement
+Function activateMenu(int page, Form akForm) ; Re-implement
 	isGroup = false
-	XFL_TriggerMenu(follower, FollowerMenu.GetMenuState("SubMenuType"), FollowerMenu.GetMenuState("PluginMenu"), page)
+	XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("SubMenuType"), FollowerMenu.GetMenuState("PluginMenu"), page)
 EndFunction
 
-Function activateGroupMenu(int page, Actor follower) ; Re-implement
+Function activateGroupMenu(int page, Form akForm) ; Re-implement
 	; Do nothing
 	isGroup = true
-	XFL_TriggerMenu(follower, FollowerMenu.GetMenuState("SubMenuType"), FollowerMenu.GetMenuState("PluginMenu"), page)
+	XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("SubMenuType"), FollowerMenu.GetMenuState("PluginMenu"), page)
 EndFunction
 
-Function XFL_TriggerMenu(Actor followerActor, string menuState = "", string previousState = "", int page = 0)
+Function XFL_TriggerMenu(Form akForm, string menuState = "", string previousState = "", int page = 0)
 	GoToState(menuState)
-	activateSubMenu(followerActor, previousState, page)
+	activateSubMenu(akForm, previousState, page)
 EndFunction
 
-Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
+Function activateSubMenu(Form akForm, string previousState = "", int page = 0)
 	; Do nothing in blank state
 EndFunction
 
-State SubMenuType_Classic ; Choose which type of outfit to wear
-	Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
+State SubMenuType_Classic
+	Function activateSubMenu(Form akForm, string previousState = "", int page = 0)
 		int OutfitMenu_Default = 0
 		int OutfitMenu_Sleepwear = 1
 		int OutfitMenu_Back = 2
@@ -106,12 +106,12 @@ State SubMenuType_Classic ; Choose which type of outfit to wear
 		int ret = FollowerOutfitTypeMenu.Show()
 		If ret == OutfitMenu_Default
 			Sleepwear = false
-			XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("SubMenuOutfit"), GetState(), page)
+			XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("SubMenuOutfit"), GetState(), page)
 		Elseif ret == OutfitMenu_Sleepwear
 			Sleepwear = true
-			XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("SubMenuOutfit"), GetState(), page)
+			XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("SubMenuOutfit"), GetState(), page)
 		Elseif ret == OutfitMenu_Back
-			FollowerMenu.XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("PluginMenu"), FollowerMenu.GetParentState("PluginMenu"), page) ; Force a back all the way to the plugin menu
+			FollowerMenu.XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("PluginMenu"), FollowerMenu.GetParentState("PluginMenu"), page) ; Force a back all the way to the plugin menu
 		Elseif ret == OutfitMenu_Exit
 			FollowerMenu.OnFinishMenu()
 		Endif
@@ -121,7 +121,7 @@ State SubMenuType_Classic ; Choose which type of outfit to wear
 EndState
 
 State SubMenuOutfit_Classic
-	Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
+	Function activateSubMenu(Form akForm, string previousState = "", int page = 0)
 		int OutfitMenu_None = 0
 		int OutfitMenu_Clothing = 1
 		int OutfitMenu_LightArmor = 2
@@ -135,7 +135,7 @@ State SubMenuOutfit_Classic
 		
 		Actor actorRef = None
 		If !isGroup
-			actorRef = followerActor
+			actorRef = akForm as Actor
 		Endif
 
 		Alias_Outfit.ForceRefTo(MenuRef) ; Menu text
@@ -145,13 +145,13 @@ State SubMenuOutfit_Classic
 			FollowerMenu.OnFinishMenu()
 			XFLMain.XFL_SendActionEvent(GetIdentifier(), 0, actorRef, None, Sleepwear as Int)
 		Elseif ret == OutfitMenu_Clothing
-			XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("SubMenuOutfitClothing"), GetState(), page)
+			XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("SubMenuOutfitClothing"), GetState(), page)
 		Elseif ret == OutfitMenu_LightArmor
-			XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("SubMenuOutfitLight"), GetState(), page)
+			XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("SubMenuOutfitLight"), GetState(), page)
 		Elseif ret == OutfitMenu_HeavyArmor
-			XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("SubMenuOutfitHeavy"), GetState(), page)
+			XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("SubMenuOutfitHeavy"), GetState(), page)
 		Elseif ret == OutfitMenu_Back
-			XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("SubMenuType"), FollowerMenu.GetMenuState("PluginMenu"), page)
+			XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("SubMenuType"), FollowerMenu.GetMenuState("PluginMenu"), page)
 		Elseif ret == OutfitMenu_Exit
 			FollowerMenu.OnFinishMenu()
 		Endif
@@ -161,7 +161,7 @@ State SubMenuOutfit_Classic
 EndState
 
 State SubMenuOutfitClothing_Classic
-	Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
+	Function activateSubMenu(Form akForm, string previousState = "", int page = 0)
 		int OutfitMenu_Back = 8
 		int OutfitMenu_Exit = 9
 
@@ -171,17 +171,16 @@ State SubMenuOutfitClothing_Classic
 		
 		Actor actorRef = None
 		If !isGroup
-			actorRef = followerActor
+			actorRef = akForm as Actor
 		Endif
 
 		Alias_Outfit.ForceRefTo(MenuRef) ; Menu text
 		int ret = FollowerOutfitClothingMenu.Show()
 		If ret < OutfitMenu_Back
-			;ApplyOutfit(actorRef, Outfits_Clothing[ret], Sleepwear)
 			FollowerMenu.OnFinishMenu()
 			XFLMain.XFL_SendActionEvent(GetIdentifier(), 0, actorRef, Outfits_Clothing[ret], Sleepwear as Int)
 		Elseif ret == OutfitMenu_Back
-			XFL_TriggerMenu(followerActor, previousState, FollowerMenu.GetMenuState("SubMenuOutfit"), page)
+			XFL_TriggerMenu(akForm, previousState, FollowerMenu.GetMenuState("SubMenuOutfit"), page)
 		Elseif ret == OutfitMenu_Exit
 			FollowerMenu.OnFinishMenu()
 		Endif
@@ -191,7 +190,7 @@ State SubMenuOutfitClothing_Classic
 EndState
 
 State SubMenuOutfitLight_Classic
-	Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
+	Function activateSubMenu(Form akForm, string previousState = "", int page = 0)
 		int OutfitMenu_Back = 7
 		int OutfitMenu_Exit = 8
 
@@ -201,7 +200,7 @@ State SubMenuOutfitLight_Classic
 		
 		Actor actorRef = None
 		If !isGroup
-			actorRef = followerActor
+			actorRef = akForm as Actor
 		Endif
 
 		Alias_Outfit.ForceRefTo(MenuRef) ; Menu text
@@ -211,7 +210,7 @@ State SubMenuOutfitLight_Classic
 			FollowerMenu.OnFinishMenu()
 			XFLMain.XFL_SendActionEvent(GetIdentifier(), 0, actorRef, Outfits_LightArmor[ret], Sleepwear as Int)
 		Elseif ret == OutfitMenu_Back
-			XFL_TriggerMenu(followerActor, previousState, FollowerMenu.GetMenuState("SubMenuOutfit"), page)
+			XFL_TriggerMenu(akForm, previousState, FollowerMenu.GetMenuState("SubMenuOutfit"), page)
 		Elseif ret == OutfitMenu_Exit
 			FollowerMenu.OnFinishMenu()
 		Endif
@@ -221,7 +220,7 @@ State SubMenuOutfitLight_Classic
 EndState
 
 State SubMenuOutfitHeavy_Classic
-	Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
+	Function activateSubMenu(Form akForm, string previousState = "", int page = 0)
 		int OutfitMenu_Back = 7
 		int OutfitMenu_Exit = 8
 
@@ -231,7 +230,7 @@ State SubMenuOutfitHeavy_Classic
 		
 		Actor actorRef = None
 		If !isGroup
-			actorRef = followerActor
+			actorRef = akForm as Actor
 		Endif
 
 		Alias_Outfit.ForceRefTo(MenuRef) ; Menu text
@@ -241,7 +240,7 @@ State SubMenuOutfitHeavy_Classic
 			FollowerMenu.OnFinishMenu()
 			XFLMain.XFL_SendActionEvent(GetIdentifier(), 0, actorRef, Outfits_HeavyArmor[ret], Sleepwear as Int)
 		Elseif ret == OutfitMenu_Back
-			XFL_TriggerMenu(followerActor, previousState, FollowerMenu.GetMenuState("SubMenuOutfit"), page)
+			XFL_TriggerMenu(akForm, previousState, FollowerMenu.GetMenuState("SubMenuOutfit"), page)
 		Elseif ret == OutfitMenu_Exit
 			FollowerMenu.OnFinishMenu()
 		Endif
@@ -256,13 +255,5 @@ Function ApplyOutfit(Actor followerActor, Outfit outfitRef, Bool isSleepwear)
 	Endif
 	If followerActor != None
 		followerActor.SetOutfit(outfitRef, isSleepwear)
-	; Else
-	; 	int i = 0
-	; 	While i <= XFLMain.XFL_GetMaximum()
-	; 		If XFLMain.XFL_FollowerAliases[i] && XFLMain.XFL_FollowerAliases[i].GetActorRef() != None
-	; 			XFLMain.XFL_FollowerAliases[i].GetActorRef().SetOutfit(outfitRef, isSleepwear)
-	; 		EndIf
-	; 		i += 1
-	; 	EndWhile
 	Endif
 EndFunction

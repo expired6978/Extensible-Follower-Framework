@@ -110,17 +110,17 @@ Event OnPluginEvent(int akType, ObjectReference akRef1 = None, ObjectReference a
 EndEvent
 
 ; Menu hierarchy
-Function activateMenu(int page, Actor follower) ; Re-implement
+Function activateMenu(int page, Form akForm) ; Re-implement
 	isGroup = false
-	XFL_TriggerMenu(follower, FollowerMenu.GetMenuState("MenuCollect"), FollowerMenu.GetMenuState("PluginMenu"), page)
+	XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("MenuCollect"), FollowerMenu.GetMenuState("PluginMenu"), page)
 EndFunction
 
-Function activateGroupMenu(int page, Actor follower) ; Re-implement
+Function activateGroupMenu(int page, Form akForm) ; Re-implement
 	isGroup = true
-	XFL_TriggerMenu(follower, FollowerMenu.GetMenuState("MenuCollect"), FollowerMenu.GetMenuState("PluginMenu"), page)
+	XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("MenuCollect"), FollowerMenu.GetMenuState("PluginMenu"), page)
 EndFunction
 
-Bool Function showMenu(Actor follower) ; Re-implement
+Bool Function showMenu(Form akForm) ; Re-implement
 	return true
 EndFunction
 
@@ -128,17 +128,17 @@ Bool Function showGroupMenu() ; Re-implement
 	return true
 EndFunction
 
-Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
+Function activateSubMenu(Form akForm, string previousState = "", int page = 0)
 	; Do nothing in blank state
 EndFunction
 
-Function XFL_TriggerMenu(Actor followerActor, string menuState = "", string previousState = "", int page = 0)
+Function XFL_TriggerMenu(Form akForm, string menuState = "", string previousState = "", int page = 0)
 	GoToState(menuState)
-	activateSubMenu(followerActor, previousState, page)
+	activateSubMenu(akForm, previousState, page)
 EndFunction
 
 State MenuCollect_Classic
-	Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
+	Function activateSubMenu(Form akForm, string previousState = "", int page = 0)
 		Int Collect_Gather = 0
 		Int Collect_Stop = 1
 		Int Collect_Back = 2
@@ -150,7 +150,7 @@ State MenuCollect_Classic
 
 		Actor actorRef = None
 		If !isGroup
-			actorRef = followerActor
+			actorRef = akForm as Actor
 		Endif
 		
 		If actorRef != None
@@ -161,14 +161,13 @@ State MenuCollect_Classic
 		
 		int ret = FollowerCollect.Show()
 		If ret == Collect_Gather
-			XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("MenuGather"), GetState(), page)
+			XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("MenuGather"), GetState(), page)
 			FollowerMenu.OnFinishMenu()
 		Elseif ret == Collect_Stop
-			;XFL_EndCollection(followerActor)
 			XFLMain.XFL_SendActionEvent(GetIdentifier(), 1, actorRef)
 			FollowerMenu.OnFinishMenu()
 		Elseif ret == Collect_Back
-			FollowerMenu.XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("PluginMenu"), FollowerMenu.GetParentState("PluginMenu"), page) ; Force a back all the way to the plugin menu
+			FollowerMenu.XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("PluginMenu"), FollowerMenu.GetParentState("PluginMenu"), page) ; Force a back all the way to the plugin menu
 		Elseif ret == Collect_Exit
 			FollowerMenu.OnFinishMenu()
 		EndIf
@@ -177,8 +176,8 @@ State MenuCollect_Classic
 	EndFunction
 EndState
 
-State MenuGather_Classic ; Choose which type of outfit to wear
-	Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
+State MenuGather_Classic
+	Function activateSubMenu(Form akForm, string previousState = "", int page = 0)
 		Int Gather_Back = 9
 		
 		If previousState != ""
@@ -187,7 +186,7 @@ State MenuGather_Classic ; Choose which type of outfit to wear
 
 		Actor actorRef = None
 		If !isGroup
-			actorRef = followerActor
+			actorRef = akForm as Actor
 		Endif
 		
 		If actorRef != None
@@ -202,7 +201,7 @@ State MenuGather_Classic ; Choose which type of outfit to wear
 			FollowerMenu.OnFinishMenu()
 			XFLMain.XFL_SendActionEvent(GetIdentifier(), 0, actorRef, None, ret + 3)
 		Elseif ret == Gather_Back
-			XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("MenuCollect"), FollowerMenu.GetMenuState("PluginMenu"), page)
+			XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("MenuCollect"), FollowerMenu.GetMenuState("PluginMenu"), page)
 		EndIf
 		
 		GoToState("")

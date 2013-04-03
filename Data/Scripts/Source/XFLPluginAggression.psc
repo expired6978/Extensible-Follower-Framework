@@ -39,21 +39,6 @@ Event OnPluginEvent(int akType, ObjectReference akRef1 = None, ObjectReference a
 	Endif
 EndEvent
 
-; Command: Aggression
-; Function XFL_Aggression(Actor follower = None, Int type = 0)
-; 	If follower != None
-; 		XFL_SetAggression(follower, type)
-; 	Else
-; 		int i = 0
-; 		While i <= XFLMain.XFL_GetMaximum()
-; 			If XFLMain.XFL_FollowerAliases[i] && XFLMain.XFL_FollowerAliases[i].GetActorRef() != None
-; 				XFL_SetAggression(XFLMain.XFL_FollowerAliases[i].GetActorRef(), type)
-; 			EndIf
-; 			i += 1
-; 		EndWhile
-; 	Endif
-; Endfunction
-
 Function XFL_SetAggression(Actor followerActor, int mode)
 	If mode == 0
 		XFL_SetAlias(followerActor)
@@ -88,17 +73,17 @@ Function XFL_ForceClearAll()
 EndFunction
 
 ; Menu hierarchy
-Function activateMenu(int page, Actor follower) ; Re-implement
+Function activateMenu(int page, Form akForm) ; Re-implement
 	isGroup = false
-	XFL_TriggerMenu(follower, "MenuAggression", FollowerMenu.GetMenuState("PluginMenu"), page)
+	XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("MenuAggression"), FollowerMenu.GetMenuState("PluginMenu"), page)
 EndFunction
 
-Function activateGroupMenu(int page, Actor follower) ; Re-implement
+Function activateGroupMenu(int page, Form akForm) ; Re-implement
 	isGroup = true
-	XFL_TriggerMenu(follower, "MenuAggression", FollowerMenu.GetMenuState("PluginMenu"), page)
+	XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("MenuAggression"), FollowerMenu.GetMenuState("PluginMenu"), page)
 EndFunction
 
-Bool Function showMenu(Actor follower) ; Re-implement
+Bool Function showMenu(Form akForm) ; Re-implement
 	return true
 EndFunction
 
@@ -106,17 +91,17 @@ Bool Function showGroupMenu() ; Re-implement
 	return true
 EndFunction
 
-Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
+Function activateSubMenu(Form akForm, string previousState = "", int page = 0)
 	; Do nothing in blank state
 EndFunction
 
-Function XFL_TriggerMenu(Actor followerActor, string menuState = "", string previousState = "", int page = 0)
+Function XFL_TriggerMenu(Form akForm, string menuState = "", string previousState = "", int page = 0)
 	GoToState(menuState)
-	activateSubMenu(followerActor, previousState, page)
+	activateSubMenu(akForm, previousState, page)
 EndFunction
 
-State MenuAggression 
-	Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
+State MenuAggression_Classic
+	Function activateSubMenu(Form akForm, string previousState = "", int page = 0)
 		Int Aggression_Back = 2
 		Int Aggression_Exit = 3
 		
@@ -126,16 +111,15 @@ State MenuAggression
 
 		Actor actorRef = None
 		If !isGroup
-			actorRef = followerActor
+			actorRef = akForm as Actor
 		Endif
 
 		int ret = FollowerAggression.Show()
 		If ret < Aggression_Back
-			;XFL_Aggression(followerActor, ret)
 			XFLMain.XFL_SendActionEvent(GetIdentifier(), ret, actorRef)
 			FollowerMenu.OnFinishMenu()
 		Elseif ret == Aggression_Back
-			FollowerMenu.XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("PluginMenu"), FollowerMenu.GetParentState("PluginMenu"), page) ; Force a back all the way to the plugin menu
+			FollowerMenu.XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("PluginMenu"), FollowerMenu.GetParentState("PluginMenu"), page) ; Force a back all the way to the plugin menu
 		Elseif ret == Aggression_Exit
 			FollowerMenu.OnFinishMenu()
 		EndIf

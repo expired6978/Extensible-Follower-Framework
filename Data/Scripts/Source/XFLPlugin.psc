@@ -33,7 +33,7 @@ Bool Function isEnabled()
 EndFunction
 
 ; Determines whether to show the plugin in the command menu
-Bool Function showMenu(Actor follower) ; Re-implement
+Bool Function showMenu(Form akForm) ; Re-implement
 	return false
 EndFunction
 
@@ -43,12 +43,12 @@ Bool Function showGroupMenu() ; Re-implement
 EndFunction
 
 ; Called when the menu is activated
-Function activateMenu(int page, Actor follower) ; Re-implement
+Function activateMenu(int page, Form akForm) ; Re-implement
 	; Do nothing
 EndFunction
 
 ; Called when the group menu is activated
-Function activateGroupMenu(int page, Actor follower) ; Re-implement
+Function activateGroupMenu(int page, Form akForm) ; Re-implement
 	; Do nothing
 EndFunction
 

@@ -21,11 +21,11 @@ Event OnActionEvent(int akCmd, Form akForm1 = None, Form akForm2 = None, int aiV
 	Endif
 EndEvent
 
-Function activateMenu(int page, Actor follower) ; Re-implement
+Function activateMenu(int page, Form akForm) ; Re-implement
 	;Game.FadeOutGame(true, true, 0, 2.5)
 	;Utility.Wait(1)
 	FollowerMenu.OnFinishMenu()
-	XFLMain.XFL_SendActionEvent(GetIdentifier(), 0, follower)
+	XFLMain.XFL_SendActionEvent(GetIdentifier(), 0, akForm)
 	;Debug.MessageBox("$$loadMovie=statssheetmenu$$")
 	;XFLMain.XFL_OpenSelectionMenu()
 	;int ret = FollowerMenu.XFL_OpenFollowerMenu(follower)
@@ -68,7 +68,7 @@ EndFunction
 ; 	EndWhile
 ; EndFunction
 
-Bool Function showMenu(Actor follower) ; Re-implement
+Bool Function showMenu(Form akForm) ; Re-implement
 	return true
 EndFunction
 
@@ -76,7 +76,7 @@ Bool Function showGroupMenu() ; Re-implement
 	return true
 EndFunction
 
-Function activateGroupMenu(int page, Actor follower) ; Re-implement
+Function activateGroupMenu(int page, Form akForm) ; Re-implement
 	FollowerMenu.OnFinishMenu()
 	XFLMain.XFL_SendActionEvent(GetIdentifier(), 0, None)
 EndFunction

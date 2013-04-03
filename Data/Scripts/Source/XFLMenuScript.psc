@@ -78,6 +78,8 @@ Bool Property XFL_MessageMod_Next Auto Conditional
 
 string branchState = ""
 
+bool selectionLock = false
+
 Event OnInit()
 	Game.GetPlayer().AddPerk(CommandFollower)
 	FollowerMenuOption_None = XFL_RegisterMenuOption(FollowerMenuObject) ; Dummy plugin to be used as a reference
@@ -269,6 +271,7 @@ Function XFL_TogglePlugins(int page = 0)
 	XFL_MessageMod_Next = 0
 	XFL_MessageMod_Back = 0
 EndFunction
+
 
 Actor Function XFL_SelectFollower(int page = 0, bool showPlayer = false)
 	Int Command_Plugin_Back = 7
@@ -492,15 +495,15 @@ State FollowerMenu_Standard
 			wheelMenu.SetWheelOptionEnabled(Command_Command, true)
 			wheelMenu.SetWheelOptionEnabled(Command_Talk, true)
 			wheelMenu.SetWheelOptionEnabled(Command_Exit, true)
-			int ret = wheelMenu.OpenMenu(followerActor)
+			int ret = wheelMenu.OpenMenu(akForm)
 			If ret == Command_Group
-				XFL_TriggerMenu(followerActor, GetMenuState("GroupMenu"), GetState())
+				XFL_TriggerMenu(XFLMain.XFL_FollowerList, GetMenuState("CommandMenu"), "")
 			Elseif ret == Command_Command
-				XFL_TriggerMenu(followerActor, GetMenuState("CommandMenu"), GetState())
+				XFL_TriggerMenu(akForm, GetMenuState("CommandMenu"), GetState())
 			Elseif ret == Command_Talk
 				followerActor.Activate(Game.GetPlayer(), true)
 				OnFinishMenu()
-			Elseif ret == Command_Exit || ret == 255
+			Elseif ret == Command_Exit || ret == -1
 				OnFinishMenu()
 			Endif
 		Endif
@@ -622,12 +625,31 @@ State CommandMenu_Standard
 		Int Command_More = 5
 		Int Command_Back = 6
 		Int Command_Exit = 7
+		Int Command_Follow = -1
+		Int Command_Wait = -1
 
 		Actor followerActor = akForm as Actor
+		if !followerActor
+			Command_Follow = 0
+			Command_Wait = 1
+			Command_Dismiss = 2
+			Command_Relax = 3
+			Command_Stats = 4
+			Command_More = 5
+			Command_WaitFollow = -1
+			Command_Trade = -1
+		Endif
+
+		XFL_MessageMod_Back = 0
+		If previousState != "" && followerActor ; Back button only available when theres a single actor
+			XFL_MessageMod_Back = 1
+		Endif
 
 		XFLWheel wheelMenu = XFL_GetFollowerMenu()
 		if wheelMenu
 			wheelMenu.ClearMenu()
+			wheelMenu.SetWheelOptionText(Command_Wait, "$Wait")
+			wheelMenu.SetWheelOptionText(Command_Follow, "$Follow")
 			wheelMenu.SetWheelOptionText(Command_Dismiss, "$Dismiss")
 			wheelMenu.SetWheelOptionText(Command_Relax, "$Relax")
 			wheelMenu.SetWheelOptionText(Command_Trade, "$Trade")
@@ -635,6 +657,8 @@ State CommandMenu_Standard
 			wheelMenu.SetWheelOptionText(Command_More, "$More")
 			wheelMenu.SetWheelOptionText(Command_Back, "$Back")
 			wheelMenu.SetWheelOptionText(Command_Exit, "$Exit")
+			wheelMenu.SetWheelOptionLabelText(Command_Wait, "$Wait")
+			wheelMenu.SetWheelOptionLabelText(Command_Follow, "$Follow")
 			wheelMenu.SetWheelOptionLabelText(Command_Dismiss, "$Dismiss")
 			wheelMenu.SetWheelOptionLabelText(Command_Relax, "$Relax")
 			wheelMenu.SetWheelOptionLabelText(Command_Trade, "$Trade")
@@ -642,6 +666,8 @@ State CommandMenu_Standard
 			wheelMenu.SetWheelOptionLabelText(Command_More, "$More")
 			wheelMenu.SetWheelOptionLabelText(Command_Back, "$Back")
 			wheelMenu.SetWheelOptionLabelText(Command_Exit, "$Exit")
+			wheelMenu.SetWheelOptionEnabled(Command_Wait, true)
+			wheelMenu.SetWheelOptionEnabled(Command_Follow, true)
 			wheelMenu.SetWheelOptionEnabled(Command_WaitFollow, true)
 			wheelMenu.SetWheelOptionEnabled(Command_Dismiss, true)
 			wheelMenu.SetWheelOptionEnabled(Command_Relax, true)
@@ -652,56 +678,87 @@ State CommandMenu_Standard
 			wheelMenu.SetWheelOptionEnabled(Command_Exit, true)
 			wheelMenu.SetWheelOptionTextColor(Command_Back, 0x777777)
 
-			float waiting = followerActor.GetAv("WaitingForPlayer")
-			If waiting == 0 ; Not waiting for player
-				wheelMenu.SetWheelOptionText(Command_WaitFollow, "$Wait")
-				wheelMenu.SetWheelOptionLabelText(Command_WaitFollow, "$Wait")
-			Elseif waiting == 1 ; Waiting for player
-				wheelMenu.SetWheelOptionText(Command_WaitFollow, "$Follow")
-				wheelMenu.SetWheelOptionLabelText(Command_WaitFollow, "$Follow")
-				wheelMenu.SetWheelOptionEnabled(Command_Relax, false)
-			Elseif waiting == 2 ; Relaxing
-				wheelMenu.SetWheelOptionText(Command_WaitFollow, "$Follow")
-				wheelMenu.SetWheelOptionLabelText(Command_WaitFollow, "$Follow")
-			Else ; Waiting state neither of these three, show all
-				wheelMenu.SetWheelOptionText(Command_WaitFollow, "$Follow")
-				wheelMenu.SetWheelOptionLabelText(Command_WaitFollow, "$Follow")
-			EndIf
-
-			If previousState != ""
+			float waiting = -1
+			If followerActor
+				followerActor.GetActorValue("WaitingForPlayer")
+				If waiting == 0 ; Not waiting for player
+					wheelMenu.SetWheelOptionText(Command_WaitFollow, "$Wait")
+					wheelMenu.SetWheelOptionLabelText(Command_WaitFollow, "$Wait")
+				Elseif waiting == 1 ; Waiting for player
+					wheelMenu.SetWheelOptionText(Command_WaitFollow, "$Follow")
+					wheelMenu.SetWheelOptionLabelText(Command_WaitFollow, "$Follow")
+					wheelMenu.SetWheelOptionEnabled(Command_Relax, false)
+				Elseif waiting == 2 ; Relaxing
+					wheelMenu.SetWheelOptionText(Command_WaitFollow, "$Follow")
+					wheelMenu.SetWheelOptionLabelText(Command_WaitFollow, "$Follow")
+				Else ; Waiting state neither of these three, show all
+					wheelMenu.SetWheelOptionText(Command_WaitFollow, "$Follow")
+					wheelMenu.SetWheelOptionLabelText(Command_WaitFollow, "$Follow")
+				EndIf
+			Endif
+			
+			If XFL_MessageMod_Back == 1 ; Back button only available when theres a single actor
 				wheelMenu.SetWheelOptionEnabled(Command_Back, true)
 				wheelMenu.SetWheelOptionTextColor(Command_Back, 0xFFFFFF)
 			EndIf
 
-			int ret = wheelMenu.OpenMenu(followerActor)
-			If ret == Command_WaitFollow
-				If waiting == 0
-					XFLMain.XFL_SetWait(followerActor)
-				Else
-					XFLMain.XFL_SetFollow(followerActor)
+			int ret = wheelMenu.OpenMenu(akForm)
+			if followerActor
+				If ret == Command_WaitFollow
+					If waiting == 0
+						XFLMain.XFL_SetWait(followerActor)
+					Else
+						XFLMain.XFL_SetFollow(followerActor)
+					Endif
+					OnFinishMenu()
+				Elseif ret == Command_Dismiss
+					XFLMain.XFL_RemoveFollower(followerActor)
+					OnFinishMenu()
+				Elseif ret == Command_Relax
+					XFLMain.XFL_SetSandbox(followerActor)
+					OnFinishMenu()
+				Elseif ret == Command_Trade
+					followerActor.OpenInventory()
+					OnFinishMenu()
+				Elseif ret == Command_Stats
+					XFLStatsMenu statsMenu = XFL_GetStatsMenu()
+					if statsMenu
+						statsMenu.OpenMenu(followerActor)
+					Endif
+					XFL_TriggerMenu(akForm, GetState(), previousState)
+				Elseif ret == Command_More
+					XFL_TriggerMenu(akForm, GetMenuState("PluginMenu"), GetState())
+				Elseif ret == Command_Back || (ret == -1 && XFL_MessageMod_Back == 1)
+					XFL_TriggerMenu(akForm, previousState)
+				Elseif ret == Command_Exit || (ret == -1 && XFL_MessageMod_Back == 0)
+					OnFinishMenu()
 				Endif
-				OnFinishMenu()
-			Elseif ret == Command_Dismiss
-				XFLMain.XFL_RemoveFollower(followerActor)
-				OnFinishMenu()
-			Elseif ret == Command_Relax
-				XFLMain.XFL_SetSandbox(followerActor)
-				OnFinishMenu()
-			Elseif ret == Command_Trade
-				followerActor.OpenInventory()
-				OnFinishMenu()
-			Elseif ret == Command_Stats
-				XFLStatsMenu statsMenu = XFL_GetStatsMenu()
-				if statsMenu
-					statsMenu.OpenMenu(followerActor)
+			Else
+				If ret == Command_Wait
+					XFLMain.XFL_WaitList(akForm)
+					OnFinishMenu()
+				Elseif ret == Command_Follow
+					XFLMain.XFL_FollowList(akForm)
+					OnFinishMenu()
+				Elseif ret == Command_Dismiss
+					XFLMain.XFL_DismissList(akForm)
+					OnFinishMenu()
+				Elseif ret == Command_Relax
+					XFLMain.XFL_SandboxList(akForm)
+					OnFinishMenu()
+				Elseif ret == Command_Stats
+					XFLStatsMenu statsMenu = XFL_GetStatsMenu()
+					if statsMenu
+						statsMenu.OpenMenu(akForm)
+					Endif
+					XFL_TriggerMenu(akForm, GetState(), previousState)
+				Elseif ret == Command_More
+					XFL_TriggerMenu(akForm, GetMenuState("PluginMenu"), GetState())
+				Elseif ret == Command_Back || (ret == -1 && XFL_MessageMod_Back == 1)
+					XFL_TriggerMenu(akForm, previousState)
+				Elseif ret == Command_Exit || (ret == -1 && XFL_MessageMod_Back == 0)
+					OnFinishMenu()
 				Endif
-				XFL_TriggerMenu(followerActor, GetState(), previousState)
-			Elseif ret == Command_More
-				XFL_TriggerMenu(followerActor, GetMenuState("PluginMenu"), GetState())
-			Elseif ret == Command_Back
-				XFL_TriggerMenu(followerActor, previousState)
-			Elseif ret == Command_Exit || ret == 255
-				OnFinishMenu()
 			Endif
 		Endif
 		deactivateMenu()
@@ -869,6 +926,151 @@ State StatsMenu_Classic
 	EndFunction
 EndState
 
+State PluginMenu_Standard
+	Function activateMenu(Form akForm = None, string previousState = "", int page = 0)
+		Int Command_Plugin_Back = 5
+		Int Command_Plugin_Next = 6
+		Int Command_Plugin_Exit = 7
+		
+		If previousState != "" || page > 0
+			XFL_MessageMod_Back = 1
+		Else
+			XFL_MessageMod_Back = 0
+		EndIf
+
+		Actor followerActor = akForm as Actor
+		
+		bool isGroup = (previousState == GetMenuState("GroupMenu"))		
+		Int[] pluginIndexes = new Int[5] ; Store which Plugin Index corresponds to which Menu index
+		int pageEnum = pluginIndexes.Length
+				
+		int ret = 0
+		While ret != Command_Plugin_Exit
+			bool Command_Plugin_Back_Enabled = (previousState != "")
+			pluginIndexes[0] = -1
+			pluginIndexes[1] = -1
+			pluginIndexes[2] = -1
+			pluginIndexes[3] = -1
+			pluginIndexes[4] = -1
+
+			int totalPlugins = XFL_FollowerPlugins.GetSize()
+			int i = 0
+			int itemIndex = 0
+			While i < totalPlugins ; Index available plugins
+				int pluginIndex = (page * pageEnum) + i
+				XFLPlugin plugin = (XFL_FollowerPlugins.GetAt(pluginIndex) As XFLPlugin)
+				If plugin && plugin.isEnabled() && ((!isGroup && plugin.showMenu(followerActor)) || (isGroup && plugin.showGroupMenu()))
+					If itemIndex < pluginIndexes.Length
+						pluginIndexes[itemIndex] = pluginIndex
+						itemIndex += 1
+					Endif
+				Else
+					totalPlugins -= 1
+				Endif
+				i += 1
+			EndWhile
+
+			; If there are more mods then what are displayed
+			If totalPlugins > (page + 1) * pageEnum
+				XFL_MessageMod_Next = 1
+			Else
+				XFL_MessageMod_Next = 0
+			EndIf
+
+			XFLWheel wheelMenu = XFL_GetFollowerMenu()
+			if wheelMenu
+				wheelMenu.ClearMenu()
+				; Setup plugin menu options
+				i = 0
+				While i < pluginIndexes.Length
+					If pluginIndexes[i] != -1
+						XFLPlugin plugin = (XFL_FollowerPlugins.GetAt(pluginIndexes[i]) As XFLPlugin)
+						If plugin
+							wheelMenu.SetWheelOptionText(i, plugin.GetPluginName())
+							wheelMenu.SetWheelOptionLabelText(i, plugin.GetPluginName())
+							wheelMenu.SetWheelOptionEnabled(i, true)
+						Endif
+					Else
+						wheelMenu.SetWheelOptionText(i, "")
+						wheelMenu.SetWheelOptionLabelText(i, "")
+						wheelMenu.SetWheelOptionEnabled(i, false)
+					EndIf
+					i += 1
+				EndWhile
+
+				wheelMenu.SetWheelOptionText(Command_Plugin_Back, "$Back")
+				wheelMenu.SetWheelOptionLabelText(Command_Plugin_Back, "$Back")
+				wheelMenu.SetWheelOptionEnabled(Command_Plugin_Back, false)
+				wheelMenu.SetWheelOptionTextColor(Command_Plugin_Back, 0x777777)
+
+				wheelMenu.SetWheelOptionText(Command_Plugin_Next, "$Next")
+				wheelMenu.SetWheelOptionLabelText(Command_Plugin_Next, "$Next")
+				wheelMenu.SetWheelOptionEnabled(Command_Plugin_Next, false)
+				wheelMenu.SetWheelOptionTextColor(Command_Plugin_Next, 0x777777)
+
+				If XFL_MessageMod_Next
+					wheelMenu.SetWheelOptionEnabled(Command_Plugin_Next, true)
+					wheelMenu.SetWheelOptionTextColor(Command_Plugin_Next, 0xFFFFFF)
+				Endif
+
+				If Command_Plugin_Back_Enabled
+					wheelMenu.SetWheelOptionEnabled(Command_Plugin_Back, true)
+					wheelMenu.SetWheelOptionTextColor(Command_Plugin_Back, 0xFFFFFF)
+				EndIf
+
+				wheelMenu.SetWheelOptionText(Command_Plugin_Exit, "$Exit")
+				wheelMenu.SetWheelOptionLabelText(Command_Plugin_Exit, "$Exit")
+				wheelMenu.SetWheelOptionEnabled(Command_Plugin_Exit, true)
+
+				ret = wheelMenu.OpenMenu(akForm)			
+				If ret >= 0 && ret < Command_Plugin_Back ; Activate the correct menu
+					XFLPlugin plugin = (XFL_FollowerPlugins.GetAt(pluginIndexes[ret]) as XFLPlugin)
+					If plugin
+						If isGroup
+							plugin.activateGroupMenu(page, akForm)
+						Else
+							plugin.activateMenu(page, akForm)
+						Endif
+					EndIf
+					ret = Command_Plugin_Exit ; Discontinue menu loop
+				Elseif ret == Command_Plugin_Back || (ret == -1 && XFL_MessageMod_Back == 1)
+					If page == 0
+						XFL_TriggerMenu(akForm, previousState, GetParentState(previousState)) ; Third level menu, need parent of parent
+						ret = Command_Plugin_Exit ; Discontinue menu loop
+					Else
+						page -= 1
+						
+						If page == 0 && previousState == "" ; We're returning to the first page of the menu, but we had no previous menu
+							XFL_MessageMod_Back = 0
+						EndIf
+					EndIf
+				Elseif ret == Command_Plugin_Next
+					XFL_MessageMod_Back = 1 ; We have previous pages
+					page += 1
+				Elseif ret == Command_Plugin_Exit || (ret == -1 && XFL_MessageMod_Back == 0)
+					ret = Command_Plugin_Exit ; Discontinue menu loop
+					OnFinishMenu()
+				EndIf
+			Endif
+		EndWhile
+		
+		deactivateMenu()
+	EndFunction
+	
+	Function deactivateMenu()
+		XFL_MessageMod_Plugin_0 = 0
+		XFL_MessageMod_Plugin_1 = 0
+		XFL_MessageMod_Plugin_2 = 0
+		XFL_MessageMod_Plugin_3 = 0
+		XFL_MessageMod_Plugin_4 = 0
+		XFL_MessageMod_Plugin_5 = 0
+		XFL_MessageMod_Plugin_6 = 0
+		XFL_MessageMod_Next = 0
+		XFL_MessageMod_Back = 0
+		GoToState("")
+	EndFunction
+EndState
+
 State PluginMenu_Classic
 	Function activateMenu(Form akForm = None, string previousState = "", int page = 0)
 		Int Command_Plugin_Back = 7
@@ -1009,6 +1211,29 @@ XFLMenuBase Function XFL_GetStandardMenu(string menuName)
 	return None
 EndFunction
 
+; Lock selection until menu returns data
+Form Function XFL_SelectFollowers()
+	selectionLock = true
+	XFLSelectionMenu selection = XFL_GetSelectionMenu()
+	selection.SetMode(1)
+	selection.OpenMenu(XFLMain.XFL_FollowerList, self)
+	int counter = 0
+	while selectionLock
+		Utility.Wait(0.1)
+		counter += 1
+		if counter > 30
+			selectionLock = false
+		Endif
+	EndWhile
+
+	return selection.GetSelection()
+EndFunction
+
+; Unlock selection, Form reference ready
+Event OnSelectForm(string eventName, string strArg, float numArg, Form sender)
+	selectionLock = false
+EndEvent
+
 ; Menu Extensions
 XFLSelectionMenu Function XFL_GetSelectionMenu()
 	If XFLMain.SKSEExtended == false
@@ -1043,20 +1268,3 @@ XFLStatsMenu Function XFL_GetStatsMenu()
 	Endif
 	return (Game.GetFormFromFile(0xE03, "XFLMenus.esp") as XFLStatsMenu)
 EndFunction
-
-Event OnSelectForm(string eventName, string strArg, float numArg, Form sender)
-	if sender
-		Form selection = (sender as XFLSelectionMenu).GetSelection()
-		if (selection as FormList)
-			int size = (selection as FormList).GetSize()
-			int i = 0
-			Debug.Trace("Length: " + size)
-			While i < size
-				Debug.Trace("Multi Selected: " + (selection as FormList).GetAt(i))
-				i += 1
-			EndWhile
-		elseif selection != None
-			Debug.Trace("Single Selected: " + selection)
-		endif
-	Endif
-EndEvent

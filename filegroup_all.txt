@@ -3,9 +3,13 @@ Interface\selectionmenu.swf
 Interface\statssheetmenu.swf
 Interface\followermenu.swf
 Interface\messagebox.swf
+Interface\xflmenus\meter.swf
 Interface\xflmenus\icons_category_psychosteve.swf
 Interface\res\XFLLogo.dds
 Interface\translations\XFLMenus_ENGLISH.txt
+Interface\translations\XFLPlugins_ENGLISH.txt
+Interface\exported\widgets\skyui\followerpanel.swf
+Interface\exported\widgets\skyui\meter.swf
 Scripts\EXP_DialogueFollowerScript.pex
 Scripts\EXP_FreeformSkyHavenTempleAScript.pex
 Scripts\EXP_HirelingQuest.pex

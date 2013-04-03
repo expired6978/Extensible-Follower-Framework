@@ -1,6 +1,7 @@
 Scriptname XFLScript extends Quest Conditional
 
 DialogueFollowerScript Property FollowerScript Auto
+XFLMenuScript Property XFLMenu Auto
 
 Topic Property DialogueFollowerDismissTopic Auto ; Don't use the package anymore
 
@@ -20,7 +21,7 @@ FormList Property XFL_FollowerList  Auto
 Spell Property XFL_Portal Auto
 
 XFLOutfit Property XFL_OutfitController Auto
-;XFLPanel Property XFL_Panel Auto
+XFLPanel Property XFL_Panel Auto
 
 float[] Property recruitTimes Auto
 bool[] Property tmRestore Auto
@@ -40,6 +41,54 @@ int Property PLUGIN_EVENT_REMOVE_DEAD_FOLLOWER = 0x02 Autoreadonly
 bool Property SKSEExtended Auto ; SKSE Loaded
 bool Property DLC1Extended Auto ; DLC1 Dawnguard Loaded
 bool Property MENUExtended Auto ; Menu System Loaded
+bool Property APNLExtended Auto ; Actor Panel Loaded
+
+Event OnInit()
+	XFL_RegisterExtensions()
+EndEvent
+
+Function XFL_RegisterExtensions()
+	; Check SKSE version
+	float skseVersion = SKSE.GetVersion() + (SKSE.GetVersionMinor() / 10.0) + (SKSE.GetVersionBeta() / 100.0)
+	If skseVersion >= 1.60
+		Debug.Trace("EFF Notification: SKSE Loaded.")
+		SKSEExtended = true
+	Else
+		Debug.Trace("EFF ERROR: SKSE version 1.6.0 not met, some features will be unavailable.")
+		SKSEExtended = false
+		XFLMenu.XFL_Config_UseClassicMenus.value = 1
+	Endif
+	; Check for DLC1
+	bool DLC1Check = (Game.GetFormFromFile(0x588C, "Dawnguard.esm") != None) ; Checks for DLC1VampireTurnScript Quest
+	If DLC1Check
+		Debug.Trace("EFF Notification: Dawnguard Loaded.")
+		DLC1Extended = true
+	Else
+		DLC1Extended = false
+	Endif
+	; Check for menu system
+	bool MENUCheck = (Game.GetFormFromFile(0xE00, "XFLMenus.esp") != None)
+	If MENUCheck
+		Debug.Trace("EFF Notification: Menu system Loaded.")
+		MENUExtended = true
+	Else
+		Debug.Trace("EFF WARNING: Menu system disabled, plugin failed to loaded.")
+		MENUExtended = false
+		XFLMenu.XFL_Config_UseClassicMenus.value = 1
+	Endif
+	; Check for panel presence
+	XFLPanel actorPanel = (Game.GetFormFromFile(0x800, "XFLPanel.esp") as XFLPanel)
+	bool APNLCheck = (actorPanel != None)
+	If APNLCheck
+		Debug.Trace("EFF Notification: Actor panel Loaded.")
+		APNLExtended = true
+		XFL_Panel = actorPanel
+	Else
+		Debug.Trace("EFF WARNING: Actor panel disabled, plugin failed to loaded.")
+		APNLExtended = false
+		XFL_Panel = None
+	Endif
+EndFunction
 
 Function XFL_RegisterPlugin(Quest questRef)
 	If XFL_FollowerPlugins
@@ -52,6 +101,7 @@ EndFunction
 Function XFL_SetWait(Actor FollowerActor)
 	If XFL_isDefault(FollowerActor) ; Follower is still in the vanilla system, use fallback commands
 		FollowerScript.FollowerWait()
+		return
 	EndIf
 
 	FollowerActor.SetActorValue("WaitingForPlayer", 1)
@@ -122,9 +172,9 @@ Function XFL_AddFollower(Actor FollowerActor)
 
 	XFL_FollowerList.AddForm(FollowerActor) ; Used by XFLSelectionMenu
 
-	;If XFL_Panel
-	;	XFL_Panel.AddActors(FollowerActor)
-	;Endif
+	If APNLExtended
+		XFL_Panel.AddActors(FollowerActor)
+	Endif
 
 	XFL_OutfitController.XFL_RemovePersistentRef(FollowerActor) ; Remove outfit persistence, we don't need it as long as they are with us
 	XFL_SendPluginEvent(PLUGIN_EVENT_ADD_FOLLOWER, FollowerActor)
@@ -172,9 +222,9 @@ Function XFL_RemoveFollower(Actor follower, Int iMessage = 0, Int iSayLine = 1)
 		XFL_OutfitController.XFL_AddPersistentRef(follower) ; Add outfit persistent
 		XFL_FollowerList.RemoveAddedForm(follower)
 
-		;If XFL_Panel
-		;	XFL_Panel.RemoveActors(follower)
-		;Endif
+		If APNLExtended
+			XFL_Panel.RemoveActors(follower)
+		Endif
 
 		XFL_SendPluginEvent(PLUGIN_EVENT_REMOVE_FOLLOWER, follower) ; Event should happen before everything is reset
 		XFL_ClearAlias(follower)
@@ -195,9 +245,9 @@ Function XFL_RemoveDeadFollower(Actor follower)
 		follower.RemoveFromFaction(FollowerScript.pCurrentHireling)
 		XFL_FollowerList.RemoveAddedForm(follower)
 
-		;If XFL_Panel
-		;	XFL_Panel.RemoveActors(follower)
-		;Endif
+		If APNLExtended
+			XFL_Panel.RemoveActors(follower)
+		Endif
 
 		XFL_SendPluginEvent(PLUGIN_EVENT_REMOVE_DEAD_FOLLOWER, follower)
 		XFL_ClearAlias(follower)
@@ -556,6 +606,18 @@ Function XFL_FollowAll()
 	EndWhile
 EndFunction
 
+; Command: Evaluate Package
+Function XFL_EvaluateAll()
+	int i = 0
+	int limit = XFL_GetMaximum()
+	While i <= limit
+		If XFL_FollowerAliases[i] && XFL_FollowerAliases[i].GetReference() != None
+			(XFL_FollowerAliases[i].GetReference() as Actor).EvaluatePackage()
+		EndIf
+		i += 1
+	EndWhile
+EndFunction
+
 Function XFL_DismissList(Form akRef, Int iMessage = 0, Int iSayLine = 1)
 	Actor akActor = None
 	If akRef
@@ -710,6 +772,13 @@ Function XFL_FocusTarget(Actor akTarget, Form akRef, bool safeCheck)
 	Endif
 EndFunction
 
+; Command: Teleport
+; Usage:
+; akTarget - Target actor we wish to teleport to
+; akRef - Source actor we wish to work on
+;         Form = Exact Actor
+;         FormList = List of Actors
+;         None = Entire Group
 Function XFL_Teleport(Actor akTarget, Form akRef)
 	Actor akActor = None
 	If akRef

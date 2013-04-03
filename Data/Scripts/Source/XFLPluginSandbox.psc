@@ -30,38 +30,6 @@ Event OnActionEvent(int akCmd, Form akForm1 = None, Form akForm2 = None, int aiV
 	Endif
 EndEvent
 
-; Command: Start Sandboxing
-; Function XFL_BeginSandbox(Actor follower = None)
-; 	If follower != None
-; 		XFL_StartSandboxing(follower)
-; 	Else
-; 		int i = 0
-; 		While i <= XFLMain.XFL_GetMaximum()
-; 			If XFLMain.XFL_FollowerAliases[i] && XFLMain.XFL_FollowerAliases[i].GetActorRef() != None
-; 				XFL_StartSandboxing(XFLMain.XFL_FollowerAliases[i].GetActorRef())
-; 			EndIf
-; 			i += 1
-; 		EndWhile
-; 	Endif
-; Endfunction
-
-; ; Command: Stop Sandboxing
-; Function XFL_EndSandbox(Actor follower = None)
-; 	If follower != None
-; 		If follower.HasKeyword(PlayerFollowerSandboxing)
-; 			XFL_ClearAlias(follower)
-; 		Endif
-; 	Else
-; 		int i = 0
-; 		While i <= XFLMain.XFL_GetMaximum()
-; 			If XFLMain.XFL_FollowerAliases[i] && XFLMain.XFL_FollowerAliases[i].GetActorRef() != None
-; 				XFL_ClearAlias(XFLMain.XFL_FollowerAliases[i].GetActorRef())
-; 			EndIf
-; 			i += 1
-; 		EndWhile
-; 	Endif
-; Endfunction
-
 ; Sets the followers sandbox location, relocates it if they are already sandboxing
 Function XFL_StartSandboxing(Actor follower)
 	If follower.HasKeyword(PlayerFollowerSandboxing)
@@ -128,17 +96,17 @@ Event OnPluginEvent(int akType, ObjectReference akRef1 = None, ObjectReference a
 EndEvent
 
 ; Menu hierarchy
-Function activateMenu(int page, Actor follower) ; Re-implement
+Function activateMenu(int page, Form akForm) ; Re-implement
 	isGroup = false
-	XFL_TriggerMenu(follower, FollowerMenu.GetMenuState("MenuSandbox"), FollowerMenu.GetMenuState("PluginMenu"), page)
+	XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("MenuSandbox"), FollowerMenu.GetMenuState("PluginMenu"), page)
 EndFunction
 
-Function activateGroupMenu(int page, Actor follower) ; Re-implement
+Function activateGroupMenu(int page, Form akForm) ; Re-implement
 	isGroup = true
-	XFL_TriggerMenu(follower, FollowerMenu.GetMenuState("MenuSandbox"), FollowerMenu.GetMenuState("PluginMenu"), page)
+	XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("MenuSandbox"), FollowerMenu.GetMenuState("PluginMenu"), page)
 EndFunction
 
-Bool Function showMenu(Actor follower) ; Re-implement
+Bool Function showMenu(Form akForm) ; Re-implement
 	return true
 EndFunction
 
@@ -146,17 +114,17 @@ Bool Function showGroupMenu() ; Re-implement
 	return true
 EndFunction
 
-Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
+Function activateSubMenu(Form akForm, string previousState = "", int page = 0)
 	; Do nothing in blank state
 EndFunction
 
-Function XFL_TriggerMenu(Actor followerActor, string menuState = "", string previousState = "", int page = 0)
+Function XFL_TriggerMenu(Form akForm, string menuState = "", string previousState = "", int page = 0)
 	GoToState(menuState)
-	activateSubMenu(followerActor, previousState, page)
+	activateSubMenu(akForm, previousState, page)
 EndFunction
 
-State MenuSandbox_Classic ; Choose which type of outfit to wear
-	Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
+State MenuSandbox_Classic
+	Function activateSubMenu(Form akForm, string previousState = "", int page = 0)
 		Int Sandbox_Set = 0
 		Int Sandbox_Clear = 1
 		Int Sandbox_Back = 2
@@ -168,7 +136,7 @@ State MenuSandbox_Classic ; Choose which type of outfit to wear
 		
 		Actor actorRef = None
 		If !isGroup
-			actorRef = followerActor
+			actorRef = akForm as Actor
 		Endif
 		
 		If actorRef != None
@@ -178,15 +146,11 @@ State MenuSandbox_Classic ; Choose which type of outfit to wear
 		Endif
 		
 		int ret = FollowerSandbox.Show()
-		;If ret == Sandbox_Set
-		;	XFL_BeginSandbox(actorRef)
-		;Elseif ret == Sandbox_Clear
-		;	XFL_EndSandbox(actorRef)
 		If ret < Sandbox_Back
 			FollowerMenu.OnFinishMenu()
-			XFLMain.XFL_SendActionEvent(GetIdentifier(), ret, followerActor)
+			XFLMain.XFL_SendActionEvent(GetIdentifier(), ret, actorRef)
 		Elseif ret == Sandbox_Back
-			FollowerMenu.XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("PluginMenu"), FollowerMenu.GetParentState("PluginMenu"), page) ; Force a back all the way to the plugin menu
+			FollowerMenu.XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("PluginMenu"), FollowerMenu.GetParentState("PluginMenu"), page) ; Force a back all the way to the plugin menu
 		Elseif ret == Sandbox_Exit
 			FollowerMenu.OnFinishMenu()
 		EndIf

@@ -46,6 +46,7 @@ string Function GetMenuName()
 	return "SelectionMenu"
 EndFunction
 
+; Push forms to FormList
 Event OnSelect(string eventName, string strArg, float numArg, Form formArg)
 	if _mode == 0
 		_selected = formArg
@@ -54,6 +55,7 @@ Event OnSelect(string eventName, string strArg, float numArg, Form formArg)
 	endif
 EndEvent
 
+; Notify receivers of ReadyState
 Event OnSelectForm(string eventName, string strArg, float numArg, Form formArg)
 	SendModEvent("SelectionMenu_SelectionChanged", "", numArg)
 EndEvent
@@ -70,8 +72,7 @@ EndEvent
 Event OnMenuClose(string menuName)
 	If menuName == _rootMenu
 		UnregisterForMenu(_rootMenu)
-		_receiver.UnregisterForModEvent("SelectionMenu_SelectForm")
-
+		_receiver.UnregisterForModEvent("SelectionMenu_SelectionChanged")
 		SoundDescriptor sDescriptor = (Game.GetForm(0x137E7) as Sound).GetDescriptor()
 		sDescriptor.SetDecibelAttenuation(tempSoundDB)
 	Endif

@@ -9,8 +9,17 @@ int _featIgnoreTimeout
 int _featRideHorses
 int _featShowStats
 int[] _featPlugins
+int _panelX
+int _panelY
+int _panelScale
+int _panelEntryCount
+int _panelFadeInDuration
+int _panelFadeOutDuration
+int _panelMoveDuration
+int _panelRemoveDuration
 
 XFLMenuScript XFLMenu = None
+XFLScript XFLMain = None
 
 int _DrawWeapon
 int _SandboxRadius
@@ -187,10 +196,12 @@ endFunction
 event OnConfigInit()
 	_featPlugins = new int[128]
 	XFLMenu = (Game.GetFormFromFile(0xC565, "XFLMain.esm") as XFLMenuScript)
-	Pages = new string[3]
+	XFLMain = (Game.GetFormFromFile(0x48C9, "XFLMain.esm") as XFLScript)
+	Pages = new string[4]
 	Pages[0] = "Features"
 	Pages[1] = "Plugins"
 	Pages[2] = "Settings"
+	Pages[3] = "Panel"
 endEvent
 
 event OnVersionUpdate(int a_version)
@@ -225,7 +236,7 @@ event OnPageReset(string a_page)
 	endIf
 
 	if (a_page == "Features")
-		_featUseMenus = AddToggleOption("Use Menus", XFLMenu.XFL_Config_UseMenus.GetValue() as bool)
+		_featUseMenus = AddTextOption("Menu Mode", GetMenuModeString())
 		_featIgnoreTimeout = AddToggleOption("Ignore Wait Timeout", XFLMenu.XFL_Config_IgnoreTimeout.GetValue() as bool)
 		_featRideHorses = AddToggleOption("Followers Ride Horses", XFLMenu.XFL_Config_RideHorses.GetValue() as bool)
 		_featShowStats = AddToggleOption("Show Follower Stats", XFLMenu.XFL_Config_ShowStats.GetValue() as bool)
@@ -260,15 +271,54 @@ event OnPageReset(string a_page)
 		_FriendHitCombat = AddSliderOption("Friend hits allowed", iFriendHitCombatAllowed)
 		_FriendHitNonCombat = AddSliderOption("Friend hits allowed", iFriendHitNonCombatAllowed)
 		_NumberActorsInCombat = AddSliderOption("Actors allowed in combat", iNumberActorsInCombatPlayer)
+	elseif (a_page == "Panel")
+		SetCursorFillMode(TOP_TO_BOTTOM)
+		If XFLMain.APNLExtended
+			AddHeaderOption("Dimensions")
+			_panelX = AddSliderOption("X Coordinate", XFLMain.XFL_Panel.X)
+			_panelY = AddSliderOption("Y Coordinate", XFLMain.XFL_Panel.Y)
+			_panelScale = AddSliderOption("Scale ", XFLMain.XFL_Panel.Scale, "{2}")
+			AddHeaderOption("Settings")
+			_panelEntryCount = AddSliderOption("Max Entries", XFLMain.XFL_Panel.MaxEntries)
+			SetCursorPosition(1)
+			AddHeaderOption("Timing")
+			_panelFadeInDuration = AddSliderOption("Fade In Duration", XFLMain.XFL_Panel.FadeInDuration, "{0}ms")
+			_panelFadeOutDuration = AddSliderOption("Fade Out Duration", XFLMain.XFL_Panel.FadeOutDuration, "{0}ms")
+			_panelMoveDuration = AddSliderOption("Move Duration", XFLMain.XFL_Panel.MoveDuration, "{0}ms")
+			_panelRemoveDuration = AddSliderOption("Remove Duration", XFLMain.XFL_Panel.RemoveDuration, "{0}ms")
+		Endif
 	endif
 endEvent
+
+string Function GetMenuModeString()
+	string menuString = "Dialogue"
+	if (XFLMenu.XFL_Config_UseMenus.GetValue() as bool)
+		if (XFLMenu.XFL_Config_UseClassicMenus.GetValue() as bool)
+			menuString = "Classic"
+		else
+			menuString = "Standard"
+		endIf
+	endif
+	return menuString
+EndFunction
 
 event OnOptionSelect(int a_option)
 	GlobalVariable toggleOption = None
 	XFLPlugin foundPlugin = None
 
+	bool useMenus = (XFLMenu.XFL_Config_UseMenus.GetValue() as bool)
+	bool useClassic = (XFLMenu.XFL_Config_UseClassicMenus.GetValue() as bool)
+
 	if (a_option == _featUseMenus)
-		toggleOption = XFLMenu.XFL_Config_UseMenus
+		if !useMenus
+			XFLMenu.XFL_Config_UseMenus.SetValue(1.0)
+			XFLMenu.XFL_Config_UseClassicMenus.SetValue(0.0)
+		elseif useMenus && !useClassic
+			XFLMenu.XFL_Config_UseClassicMenus.SetValue(1.0)
+		elseif useMenus && useClassic
+			XFLMenu.XFL_Config_UseMenus.SetValue(0.0)
+		endIf
+		SetTextOptionValue(_featUseMenus, GetMenuModeString())
 	elseIf (a_option == _featIgnoreTimeout)
 		toggleOption = XFLMenu.XFL_Config_IgnoreTimeout
 	elseIf (a_option == _featRideHorses)
@@ -365,6 +415,62 @@ event OnOptionSliderOpen(int a_option)
 		SetSliderDialogDefaultValue(6)
 		SetSliderDialogRange(0, 512)
 		SetSliderDialogInterval(1)
+	Elseif (a_option == _panelX)
+		If XFLMain.APNLExtended
+			SetSliderDialogStartValue(XFLMain.XFL_Panel.X)
+		Endif
+		SetSliderDialogDefaultValue(0)
+		SetSliderDialogRange(0, 1280)
+		SetSliderDialogInterval(1)
+	Elseif (a_option == _panelY)
+		If XFLMain.APNLExtended
+			SetSliderDialogStartValue(XFLMain.XFL_Panel.Y)
+		Endif
+		SetSliderDialogDefaultValue(0)
+		SetSliderDialogRange(0, 720)
+		SetSliderDialogInterval(1)
+	Elseif (a_option == _panelScale)
+		If XFLMain.APNLExtended
+			SetSliderDialogStartValue(XFLMain.XFL_Panel.Scale)
+		Endif
+		SetSliderDialogDefaultValue(0)
+		SetSliderDialogRange(0.01, 2.0)
+		SetSliderDialogInterval(0.01)
+	Elseif (a_option == _panelEntryCount)
+		If XFLMain.APNLExtended
+			SetSliderDialogStartValue(XFLMain.XFL_Panel.MaxEntries)
+		Endif
+		SetSliderDialogDefaultValue(5)
+		SetSliderDialogRange(1, 100)
+		SetSliderDialogInterval(1)
+	Elseif (a_option == _panelFadeInDuration)
+		If XFLMain.APNLExtended
+			SetSliderDialogStartValue(XFLMain.XFL_Panel.FadeInDuration)
+		Endif
+		SetSliderDialogDefaultValue(250)
+		SetSliderDialogRange(0, 5000)
+		SetSliderDialogInterval(1)
+	Elseif (a_option == _panelFadeOutDuration)
+		If XFLMain.APNLExtended
+			SetSliderDialogStartValue(XFLMain.XFL_Panel.FadeOutDuration)
+		Endif
+		SetSliderDialogDefaultValue(250)
+		SetSliderDialogRange(0, 5000)
+		SetSliderDialogInterval(1)
+	Elseif (a_option == _panelMoveDuration)
+		If XFLMain.APNLExtended
+			SetSliderDialogStartValue(XFLMain.XFL_Panel.MoveDuration)
+		Endif
+		SetSliderDialogDefaultValue(1000)
+		SetSliderDialogRange(0, 5000)
+		SetSliderDialogInterval(1)
+	Elseif (a_option == _panelRemoveDuration)
+		If XFLMain.APNLExtended
+			SetSliderDialogStartValue(XFLMain.XFL_Panel.RemoveDuration)
+		Endif
+		SetSliderDialogDefaultValue(15000)
+		SetSliderDialogRange(0, 60000)
+		SetSliderDialogInterval(1)
 	endIf
 endEvent
 
@@ -404,6 +510,46 @@ event OnOptionSliderAccept(int a_option, float a_value)
 	Elseif (a_option == _NumberActorsToFollow)
 		iNumberActorsAllowedToFollowPlayer = a_value as int
 		SetSliderOptionValue(a_option, a_value)
+	Elseif (a_option == _panelX)
+		If XFLMain.APNLExtended
+			XFLMain.XFL_Panel.X = a_value
+		Endif
+		SetSliderOptionValue(a_option, a_value)
+	Elseif (a_option == _panelY)
+		If XFLMain.APNLExtended
+			XFLMain.XFL_Panel.Y = a_value
+		Endif
+		SetSliderOptionValue(a_option, a_value)
+	Elseif (a_option == _panelScale)
+		If XFLMain.APNLExtended
+			XFLMain.XFL_Panel.Scale = a_value
+		Endif
+		SetSliderOptionValue(a_option, a_value, "{2}")
+	Elseif (a_option == _panelEntryCount)
+		If XFLMain.APNLExtended
+			XFLMain.XFL_Panel.MaxEntries = a_value as int
+		Endif
+		SetSliderOptionValue(a_option, a_value)
+	Elseif (a_option == _panelFadeInDuration)
+		If XFLMain.APNLExtended
+			XFLMain.XFL_Panel.FadeInDuration = a_value
+		Endif
+		SetSliderOptionValue(a_option, a_value, "{0}ms")
+	Elseif (a_option == _panelFadeOutDuration)
+		If XFLMain.APNLExtended
+			XFLMain.XFL_Panel.FadeOutDuration = a_value
+		Endif
+		SetSliderOptionValue(a_option, a_value, "{0}ms")
+	Elseif (a_option == _panelMoveDuration)
+		If XFLMain.APNLExtended
+			XFLMain.XFL_Panel.MoveDuration = a_value
+		Endif
+		SetSliderOptionValue(a_option, a_value, "{0}ms")
+	Elseif (a_option == _panelRemoveDuration)
+		If XFLMain.APNLExtended
+			XFLMain.XFL_Panel.RemoveDuration = a_value
+		Endif
+		SetSliderOptionValue(a_option, a_value, "{0}ms")
 	endIf
 endEvent
 
@@ -432,5 +578,15 @@ event OnOptionHighlight(int a_option)
 		SetInfoText("Distance between a follower at a door.")
 	elseIf (a_option == _StartSprintDist)
 		SetInfoText("Distance before a follower starts sprinting.")
+	elseIf (a_option == _panelEntryCount)
+		SetInfoText("Maximum number of actors shown on the panel at one time.")
+	elseIf (a_option == _panelFadeInDuration)
+		SetInfoText("Amount of time in milliseconds it takes to fade an actor in.")
+	elseIf (a_option == _panelFadeOutDuration)
+		SetInfoText("Amount of time in milliseconds it takes to fade an actor out.")
+	elseIf (a_option == _panelMoveDuration)
+		SetInfoText("Amount of time in milliseconds it takes to move an actor up when another is removed.")
+	elseIf (a_option == _panelRemoveDuration)
+		SetInfoText("Amount of time in milliseconds it takes to remove an actor when no activity has occured.")
 	endIf
 endEvent

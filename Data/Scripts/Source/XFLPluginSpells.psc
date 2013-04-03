@@ -28,7 +28,7 @@ Event OnActionEvent(int akCmd, Form akForm1 = None, Form akForm2 = None, int aiV
 EndEvent
 
 ; Determines whether to show the plugin in the command menu
-Bool Function showMenu(Actor follower) ; Re-implement
+Bool Function showMenu(Form akForm) ; Re-implement
 	return true
 EndFunction
 
@@ -36,29 +36,6 @@ EndFunction
 Bool Function showGroupMenu() ; Re-implement
 	return true
 EndFunction
-
-; Command: Spells
-; Function XFL_TeachSpell(Actor teacher, Actor student, int hand, bool forget = false)
-; 	If student != None
-; 		If !forget
-; 			XFL_AddSpell(teacher, student, hand)
-; 		Else
-; 			XFL_RemoveSpell(teacher, student, hand)
-; 		Endif
-; 	Else
-; 		int i = 0
-; 		While i <= XFLMain.XFL_GetMaximum()
-; 			If XFLMain.XFL_FollowerAliases[i] && XFLMain.XFL_FollowerAliases[i].GetActorRef() != None
-; 				If !forget
-; 					XFL_AddSpell(teacher, XFLMain.XFL_FollowerAliases[i].GetActorRef(), hand)
-; 				Else
-; 					XFL_RemoveSpell(teacher, XFLMain.XFL_FollowerAliases[i].GetActorRef(), hand)
-; 				Endif
-; 			EndIf
-; 			i += 1
-; 		EndWhile
-; 	Endif
-; EndFunction
 
 Function XFL_AddSpell(Actor teacher, Actor student, int hand)
 	Spell handSpell = teacher.GetEquippedSpell(hand)
@@ -76,28 +53,28 @@ Function XFL_RemoveSpell(Actor teacher, Actor student, int hand)
 	Endif
 EndFunction
 
-Function activateMenu(int page, Actor follower) ; Re-implement
+Function activateMenu(int page, Form akForm) ; Re-implement
 	isGroup = false
-	XFL_TriggerMenu(follower, FollowerMenu.GetMenuState("MenuSpells"), FollowerMenu.GetMenuState("PluginMenu"), page)
+	XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("MenuSpells"), FollowerMenu.GetMenuState("PluginMenu"), page)
 EndFunction
 
-Function activateGroupMenu(int page, Actor follower) ; Re-implement
+Function activateGroupMenu(int page, Form akForm) ; Re-implement
 	; Do nothing
 	isGroup = true
-	XFL_TriggerMenu(follower, FollowerMenu.GetMenuState("MenuSpells"), FollowerMenu.GetMenuState("PluginMenu"), page)
+	XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("MenuSpells"), FollowerMenu.GetMenuState("PluginMenu"), page)
 EndFunction
 
-Function XFL_TriggerMenu(Actor followerActor, string menuState = "", string previousState = "", int page = 0)
+Function XFL_TriggerMenu(Form akForm, string menuState = "", string previousState = "", int page = 0)
 	GoToState(menuState)
-	activateSubMenu(followerActor, previousState, page)
+	activateSubMenu(akForm, previousState, page)
 EndFunction
 
-Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
+Function activateSubMenu(Form akForm, string previousState = "", int page = 0)
 	; Do nothing in blank state
 EndFunction
 
-State MenuSpells_Classic ; Choose which type of outfit to wear
-	Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
+State MenuSpells_Classic
+	Function activateSubMenu(Form akForm, string previousState = "", int page = 0)
 		int Spells_Teach = 0
 		int Spells_Forget = 1
 		int Spells_Back = 2
@@ -110,12 +87,12 @@ State MenuSpells_Classic ; Choose which type of outfit to wear
 		int ret = FollowerSpells.Show()
 		If ret == Spells_Teach
 			isForget = false
-			XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("SubMenuSpellSelect"), GetState(), page)
+			XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("SubMenuSpellSelect"), GetState(), page)
 		Elseif ret == Spells_Forget
 			isForget = true
-			XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("SubMenuSpellSelect"), GetState(), page)
+			XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("SubMenuSpellSelect"), GetState(), page)
 		Elseif ret == Spells_Back
-			FollowerMenu.XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("PluginMenu"), FollowerMenu.GetParentState("PluginMenu"), page) ; Force a back all the way to the plugin menu
+			FollowerMenu.XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("PluginMenu"), FollowerMenu.GetParentState("PluginMenu"), page) ; Force a back all the way to the plugin menu
 		Elseif ret == Spells_Exit
 			FollowerMenu.OnFinishMenu()
 		Endif
@@ -125,7 +102,7 @@ State MenuSpells_Classic ; Choose which type of outfit to wear
 EndState
 
 State SubMenuSpellSelect_Classic
-	Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
+	Function activateSubMenu(Form akForm, string previousState = "", int page = 0)
 		int SpellSelect_Back = 2
 		int SpellSelect_Exit = 3
 
@@ -135,16 +112,15 @@ State SubMenuSpellSelect_Classic
 		
 		Actor actorRef = None
 		If !isGroup
-			actorRef = followerActor
+			actorRef = akForm as Actor
 		Endif
 
 		int ret = FollowerSpellSelect.Show()
 		If ret < SpellSelect_Back
-			;XFL_TeachSpell(Game.GetPlayer(), followerActor, ret, isForget)
 			FollowerMenu.OnFinishMenu()
 			XFLMain.XFL_SendActionEvent(GetIdentifier(), isForget as Int, Game.GetPlayer(), actorRef, ret)
 		Elseif ret == SpellSelect_Back
-			XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("SubMenuSpells"), FollowerMenu.GetMenuState("PluginMenu"), page)
+			XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("SubMenuSpells"), FollowerMenu.GetMenuState("PluginMenu"), page)
 		Elseif ret == SpellSelect_Exit
 			FollowerMenu.OnFinishMenu()
 		Endif

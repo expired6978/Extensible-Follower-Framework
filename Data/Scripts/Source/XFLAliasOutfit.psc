@@ -13,6 +13,11 @@ Event OnCellLoad()
 	LoadEquipment()
 EndEvent
 
+Event OnCellAttach()
+	;Debug.Trace("Loading equipment...")
+	LoadEquipment()
+EndEvent
+
 Function ClearEquipment()
 	int i = 0
 	While i < BipedObjects.length
@@ -58,12 +63,12 @@ EndFunction
 
 Function LoadEquipment()
 	Actor actorRef = Self.GetReference() as Actor
-	If BipedObjects[0] as Weapon
+	If BipedObjects[0] as Weapon && actorRef.GetItemCount(BipedObjects[0]) >= 1
 		actorRef.EquipItem(BipedObjects[0])
 	Elseif BipedObjects[0] as Spell
 		actorRef.EquipSpell(BipedObjects[0] as Spell, 0)
 	Endif
-	If (BipedObjects[1] as Weapon) || (BipedObjects[1] as Armor)
+	If ((BipedObjects[1] as Weapon) || (BipedObjects[1] as Armor)) && actorRef.GetItemCount(BipedObjects[1]) >= 1
 		actorRef.EquipItem(BipedObjects[1])
 	Elseif BipedObjects[1] as Spell
 		actorRef.EquipSpell(BipedObjects[1] as Spell, 1)

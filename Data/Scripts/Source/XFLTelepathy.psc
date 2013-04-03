@@ -6,7 +6,7 @@ XFLMenuScript Property XFLMenu  Auto
 Message Property FollowerCommandTelepathy  Auto  
 
 Event OnEffectStart(Actor akTarget, Actor akCaster)
-	Actor selected = None
+	Form selected = None
 	If XFLMain.XFL_FollowerCountEx.GetValue() == 1 ; We only have one follower, why bother with the main menu
 		selected = XFLMain.XFL_GetLastFollower()
 	Else ; Follower is ambiguous, Group or Selection
@@ -14,13 +14,20 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 		int Telepathy_Select = 1
 
 		XFLMenu.OnStartMenu()
-		int ret = FollowerCommandTelepathy.Show()
-		If ret == Telepathy_Group
-			XFLMenu.XFL_TriggerMenu(None, XFLMenu.GetMenuState("GroupMenu")) ; Group
-		Elseif ret == Telepathy_Select
-			selected = XFLMenu.XFL_SelectFollower() ; Selected
+		If (XFLMenu.XFL_Config_UseClassicMenus.GetValue() as bool)
+			int ret = FollowerCommandTelepathy.Show()
+			If ret == Telepathy_Group
+				XFLMenu.XFL_TriggerMenu(None, XFLMenu.GetMenuState("GroupMenu")) ; Group
+			Elseif ret == Telepathy_Select
+				selected = XFLMenu.XFL_SelectFollower() ; Selected
+			Else
+				XFLMenu.OnFinishMenu()
+			Endif
 		Else
-			XFLMenu.OnFinishMenu()
+			selected = XFLMenu.XFL_SelectFollowers()
+			If (selected as FormList) && (selected as FormList).GetSize() == 0
+				selected = None
+			Endif
 		Endif
 	Endif
 	If selected ; Single follower selected

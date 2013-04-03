@@ -87,17 +87,17 @@ Event OnPluginEvent(int akType, ObjectReference akRef1 = None, ObjectReference a
 EndEvent
 
 ; Menu hierarchy
-Function activateMenu(int page, Actor follower) ; Re-implement
+Function activateMenu(int page, Form akForm) ; Re-implement
 	isGroup = false
-	XFL_TriggerMenu(follower, FollowerMenu.GetMenuState("MenuImportance"), FollowerMenu.GetMenuState("PluginMenu"), page)
+	XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("MenuImportance"), FollowerMenu.GetMenuState("PluginMenu"), page)
 EndFunction
 
-Function activateGroupMenu(int page, Actor follower) ; Re-implement
+Function activateGroupMenu(int page, Form akForm) ; Re-implement
 	isGroup = true
-	XFL_TriggerMenu(follower, FollowerMenu.GetMenuState("MenuImportance"), FollowerMenu.GetMenuState("PluginMenu"), page)
+	XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("MenuImportance"), FollowerMenu.GetMenuState("PluginMenu"), page)
 EndFunction
 
-Bool Function showMenu(Actor follower) ; Re-implement
+Bool Function showMenu(Form akForm) ; Re-implement
 	return true
 EndFunction
 
@@ -105,17 +105,17 @@ Bool Function showGroupMenu() ; Re-implement
 	return true
 EndFunction
 
-Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
+Function activateSubMenu(Form akForm, string previousState = "", int page = 0)
 	; Do nothing in blank state
 EndFunction
 
-Function XFL_TriggerMenu(Actor followerActor, string menuState = "", string previousState = "", int page = 0)
+Function XFL_TriggerMenu(Form akForm, string menuState = "", string previousState = "", int page = 0)
 	GoToState(menuState)
-	activateSubMenu(followerActor, previousState, page)
+	activateSubMenu(akForm, previousState, page)
 EndFunction
 
-State MenuImportance_Classic ; Choose which type of outfit to wear
-	Function activateSubMenu(Actor followerActor, string previousState = "", int page = 0)
+State MenuImportance_Classic
+	Function activateSubMenu(Form akForm, string previousState = "", int page = 0)
 		Int Importance_Back = 3
 		Int Importance_Exit = 4
 		
@@ -125,16 +125,15 @@ State MenuImportance_Classic ; Choose which type of outfit to wear
 
 		Actor actorRef = None
 		If !isGroup
-			actorRef = followerActor
+			actorRef = akForm as Actor
 		Endif
 				
 		int ret = FollowerImportance.Show()
 		If ret < Importance_Back
-			;XFL_Importance(followerActor, ret)
 			FollowerMenu.OnFinishMenu()
 			XFLMain.XFL_SendActionEvent(GetIdentifier(), ret, actorRef)
 		Elseif ret == Importance_Back
-			FollowerMenu.XFL_TriggerMenu(followerActor, FollowerMenu.GetMenuState("PluginMenu"), FollowerMenu.GetParentState("PluginMenu"), page) ; Force a back all the way to the plugin menu
+			FollowerMenu.XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("PluginMenu"), FollowerMenu.GetParentState("PluginMenu"), page) ; Force a back all the way to the plugin menu
 		Elseif ret == Importance_Exit
 			FollowerMenu.OnFinishMenu()
 		EndIf

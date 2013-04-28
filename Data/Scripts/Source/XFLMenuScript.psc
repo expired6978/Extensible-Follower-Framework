@@ -76,6 +76,20 @@ Bool Property XFL_MessageMod_Plugin_5 Auto Conditional
 Bool Property XFL_MessageMod_Plugin_6 Auto Conditional
 Bool Property XFL_MessageMod_Next Auto Conditional
 
+string Property STRING_COMMAND_GROUP = "$Group" AutoReadOnly
+string Property STRING_COMMAND_COMMAND = "$Command" AutoReadOnly
+string Property STRING_COMMAND_TALK = "$Talk" AutoReadOnly
+string Property STRING_COMMAND_EXIT = "$Exit" AutoReadOnly
+string Property STRING_COMMAND_WAIT = "$Wait" AutoReadOnly
+string Property STRING_COMMAND_FOLLOW = "$Follow" AutoReadOnly
+string Property STRING_COMMAND_DISMISS = "$Dismiss" AutoReadOnly
+string Property STRING_COMMAND_RELAX = "$Relax" AutoReadOnly
+string Property STRING_COMMAND_TRADE = "$Trade" AutoReadOnly
+string Property STRING_COMMAND_STATS = "$Stats" AutoReadOnly
+string Property STRING_COMMAND_NEXT = "$Next" AutoReadOnly
+string Property STRING_COMMAND_MORE = "$More" AutoReadOnly
+string Property STRING_COMMAND_BACK = "$Back" AutoReadOnly
+
 string branchState = ""
 
 bool selectionLock = false
@@ -483,14 +497,14 @@ State FollowerMenu_Standard
 		XFLWheel wheelMenu = XFL_GetFollowerMenu()
 		if wheelMenu
 			wheelMenu.ClearMenu()
-			wheelMenu.SetWheelOptionText(Command_Group, "$Group")
-			wheelMenu.SetWheelOptionText(Command_Command, "$Command")
-			wheelMenu.SetWheelOptionText(Command_Talk, "$Talk")
-			wheelMenu.SetWheelOptionText(Command_Exit, "$Exit")
-			wheelMenu.SetWheelOptionLabelText(Command_Group, "$Group")
-			wheelMenu.SetWheelOptionLabelText(Command_Command, "$Command")
-			wheelMenu.SetWheelOptionLabelText(Command_Talk, "$Talk")
-			wheelMenu.SetWheelOptionLabelText(Command_Exit, "$Exit")
+			wheelMenu.SetWheelOptionText(Command_Group, STRING_COMMAND_GROUP)
+			wheelMenu.SetWheelOptionText(Command_Command, STRING_COMMAND_COMMAND)
+			wheelMenu.SetWheelOptionText(Command_Talk, STRING_COMMAND_TALK)
+			wheelMenu.SetWheelOptionText(Command_Exit, STRING_COMMAND_EXIT)
+			wheelMenu.SetWheelOptionLabelText(Command_Group, STRING_COMMAND_GROUP)
+			wheelMenu.SetWheelOptionLabelText(Command_Command, STRING_COMMAND_COMMAND)
+			wheelMenu.SetWheelOptionLabelText(Command_Talk, STRING_COMMAND_TALK)
+			wheelMenu.SetWheelOptionLabelText(Command_Exit, STRING_COMMAND_EXIT)
 			wheelMenu.SetWheelOptionEnabled(Command_Group, true)
 			wheelMenu.SetWheelOptionEnabled(Command_Command, true)
 			wheelMenu.SetWheelOptionEnabled(Command_Talk, true)
@@ -648,24 +662,24 @@ State CommandMenu_Standard
 		XFLWheel wheelMenu = XFL_GetFollowerMenu()
 		if wheelMenu
 			wheelMenu.ClearMenu()
-			wheelMenu.SetWheelOptionText(Command_Wait, "$Wait")
-			wheelMenu.SetWheelOptionText(Command_Follow, "$Follow")
-			wheelMenu.SetWheelOptionText(Command_Dismiss, "$Dismiss")
-			wheelMenu.SetWheelOptionText(Command_Relax, "$Relax")
-			wheelMenu.SetWheelOptionText(Command_Trade, "$Trade")
-			wheelMenu.SetWheelOptionText(Command_Stats, "$Stats")
-			wheelMenu.SetWheelOptionText(Command_More, "$More")
-			wheelMenu.SetWheelOptionText(Command_Back, "$Back")
-			wheelMenu.SetWheelOptionText(Command_Exit, "$Exit")
-			wheelMenu.SetWheelOptionLabelText(Command_Wait, "$Wait")
-			wheelMenu.SetWheelOptionLabelText(Command_Follow, "$Follow")
-			wheelMenu.SetWheelOptionLabelText(Command_Dismiss, "$Dismiss")
-			wheelMenu.SetWheelOptionLabelText(Command_Relax, "$Relax")
-			wheelMenu.SetWheelOptionLabelText(Command_Trade, "$Trade")
-			wheelMenu.SetWheelOptionLabelText(Command_Stats, "$Stats")
-			wheelMenu.SetWheelOptionLabelText(Command_More, "$More")
-			wheelMenu.SetWheelOptionLabelText(Command_Back, "$Back")
-			wheelMenu.SetWheelOptionLabelText(Command_Exit, "$Exit")
+			wheelMenu.SetWheelOptionText(Command_Wait, STRING_COMMAND_WAIT)
+			wheelMenu.SetWheelOptionText(Command_Follow, STRING_COMMAND_FOLLOW)
+			wheelMenu.SetWheelOptionText(Command_Dismiss, STRING_COMMAND_DISMISS)
+			wheelMenu.SetWheelOptionText(Command_Relax, STRING_COMMAND_RELAX)
+			wheelMenu.SetWheelOptionText(Command_Trade, STRING_COMMAND_TRADE)
+			wheelMenu.SetWheelOptionText(Command_Stats, STRING_COMMAND_STATS)
+			wheelMenu.SetWheelOptionText(Command_More, STRING_COMMAND_MORE)
+			wheelMenu.SetWheelOptionText(Command_Back, STRING_COMMAND_BACK)
+			wheelMenu.SetWheelOptionText(Command_Exit, STRING_COMMAND_EXIT)
+			wheelMenu.SetWheelOptionLabelText(Command_Wait, STRING_COMMAND_WAIT)
+			wheelMenu.SetWheelOptionLabelText(Command_Follow, STRING_COMMAND_FOLLOW)
+			wheelMenu.SetWheelOptionLabelText(Command_Dismiss, STRING_COMMAND_DISMISS)
+			wheelMenu.SetWheelOptionLabelText(Command_Relax, STRING_COMMAND_RELAX)
+			wheelMenu.SetWheelOptionLabelText(Command_Trade, STRING_COMMAND_TRADE)
+			wheelMenu.SetWheelOptionLabelText(Command_Stats, STRING_COMMAND_STATS)
+			wheelMenu.SetWheelOptionLabelText(Command_More, STRING_COMMAND_MORE)
+			wheelMenu.SetWheelOptionLabelText(Command_Back, STRING_COMMAND_BACK)
+			wheelMenu.SetWheelOptionLabelText(Command_Exit, STRING_COMMAND_EXIT)
 			wheelMenu.SetWheelOptionEnabled(Command_Wait, true)
 			wheelMenu.SetWheelOptionEnabled(Command_Follow, true)
 			wheelMenu.SetWheelOptionEnabled(Command_WaitFollow, true)
@@ -682,18 +696,18 @@ State CommandMenu_Standard
 			If followerActor
 				followerActor.GetActorValue("WaitingForPlayer")
 				If waiting == 0 ; Not waiting for player
-					wheelMenu.SetWheelOptionText(Command_WaitFollow, "$Wait")
-					wheelMenu.SetWheelOptionLabelText(Command_WaitFollow, "$Wait")
+					wheelMenu.SetWheelOptionText(Command_WaitFollow, STRING_COMMAND_WAIT)
+					wheelMenu.SetWheelOptionLabelText(Command_WaitFollow, STRING_COMMAND_WAIT)
 				Elseif waiting == 1 ; Waiting for player
-					wheelMenu.SetWheelOptionText(Command_WaitFollow, "$Follow")
-					wheelMenu.SetWheelOptionLabelText(Command_WaitFollow, "$Follow")
+					wheelMenu.SetWheelOptionText(Command_WaitFollow, STRING_COMMAND_FOLLOW)
+					wheelMenu.SetWheelOptionLabelText(Command_WaitFollow, STRING_COMMAND_FOLLOW)
 					wheelMenu.SetWheelOptionEnabled(Command_Relax, false)
 				Elseif waiting == 2 ; Relaxing
-					wheelMenu.SetWheelOptionText(Command_WaitFollow, "$Follow")
-					wheelMenu.SetWheelOptionLabelText(Command_WaitFollow, "$Follow")
+					wheelMenu.SetWheelOptionText(Command_WaitFollow, STRING_COMMAND_FOLLOW)
+					wheelMenu.SetWheelOptionLabelText(Command_WaitFollow, STRING_COMMAND_FOLLOW)
 				Else ; Waiting state neither of these three, show all
-					wheelMenu.SetWheelOptionText(Command_WaitFollow, "$Follow")
-					wheelMenu.SetWheelOptionLabelText(Command_WaitFollow, "$Follow")
+					wheelMenu.SetWheelOptionText(Command_WaitFollow, STRING_COMMAND_FOLLOW)
+					wheelMenu.SetWheelOptionLabelText(Command_WaitFollow, STRING_COMMAND_FOLLOW)
 				EndIf
 			Endif
 			
@@ -959,7 +973,7 @@ State PluginMenu_Standard
 			While i < totalPlugins ; Index available plugins
 				int pluginIndex = (page * pageEnum) + i
 				XFLPlugin plugin = (XFL_FollowerPlugins.GetAt(pluginIndex) As XFLPlugin)
-				If plugin && plugin.isEnabled() && ((!isGroup && plugin.showMenu(followerActor)) || (isGroup && plugin.showGroupMenu()))
+				If plugin && plugin.isEnabled() && ((!isGroup && plugin.showMenu(akForm)) || (isGroup && plugin.showGroupMenu()))
 					If itemIndex < pluginIndexes.Length
 						pluginIndexes[itemIndex] = pluginIndex
 						itemIndex += 1
@@ -998,13 +1012,13 @@ State PluginMenu_Standard
 					i += 1
 				EndWhile
 
-				wheelMenu.SetWheelOptionText(Command_Plugin_Back, "$Back")
-				wheelMenu.SetWheelOptionLabelText(Command_Plugin_Back, "$Back")
+				wheelMenu.SetWheelOptionText(Command_Plugin_Back, STRING_COMMAND_BACK)
+				wheelMenu.SetWheelOptionLabelText(Command_Plugin_Back, STRING_COMMAND_BACK)
 				wheelMenu.SetWheelOptionEnabled(Command_Plugin_Back, false)
 				wheelMenu.SetWheelOptionTextColor(Command_Plugin_Back, 0x777777)
 
-				wheelMenu.SetWheelOptionText(Command_Plugin_Next, "$Next")
-				wheelMenu.SetWheelOptionLabelText(Command_Plugin_Next, "$Next")
+				wheelMenu.SetWheelOptionText(Command_Plugin_Next, STRING_COMMAND_NEXT)
+				wheelMenu.SetWheelOptionLabelText(Command_Plugin_Next, STRING_COMMAND_NEXT)
 				wheelMenu.SetWheelOptionEnabled(Command_Plugin_Next, false)
 				wheelMenu.SetWheelOptionTextColor(Command_Plugin_Next, 0x777777)
 
@@ -1018,8 +1032,8 @@ State PluginMenu_Standard
 					wheelMenu.SetWheelOptionTextColor(Command_Plugin_Back, 0xFFFFFF)
 				EndIf
 
-				wheelMenu.SetWheelOptionText(Command_Plugin_Exit, "$Exit")
-				wheelMenu.SetWheelOptionLabelText(Command_Plugin_Exit, "$Exit")
+				wheelMenu.SetWheelOptionText(Command_Plugin_Exit, STRING_COMMAND_EXIT)
+				wheelMenu.SetWheelOptionLabelText(Command_Plugin_Exit, STRING_COMMAND_EXIT)
 				wheelMenu.SetWheelOptionEnabled(Command_Plugin_Exit, true)
 
 				ret = wheelMenu.OpenMenu(akForm)			

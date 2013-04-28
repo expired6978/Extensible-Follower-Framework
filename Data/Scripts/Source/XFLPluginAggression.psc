@@ -4,6 +4,11 @@ Message Property FollowerAggression Auto
 Keyword Property PlayerFollowerIsPassive Auto
 ReferenceAlias[] Property XFL_Passive Auto
 
+string Property STRING_AGGRESSION_PASSIVE = "$Passive" AutoReadOnly
+string Property STRING_AGGRESSION_AGGRESSIVE = "$Aggressive" AutoReadOnly
+string Property STRING_AGGRESSION_BACK = "$Back" AutoReadOnly
+string Property STRING_AGGRESSION_EXIT = "$Exit" AutoReadOnly
+
 bool isGroup = false
 
 int Function GetIdentifier()
@@ -99,6 +104,69 @@ Function XFL_TriggerMenu(Form akForm, string menuState = "", string previousStat
 	GoToState(menuState)
 	activateSubMenu(akForm, previousState, page)
 EndFunction
+
+State MenuAggression_Standard
+	Function activateSubMenu(Form akForm, string previousState = "", int page = 0)
+		int Aggression_Passive = 0
+		int Aggression_Aggressive = 4
+		Int Aggression_Back = 6
+		Int Aggression_Exit = 7
+		
+		If previousState != "" || page > 0
+			FollowerMenu.XFL_MessageMod_Back = 1
+		EndIf
+
+		Actor followerActor = akForm as Actor
+
+		XFLWheel wheelMenu = FollowerMenu.XFL_GetFollowerMenu()
+		if wheelMenu
+			wheelMenu.ClearMenu()
+			wheelMenu.SetWheelOptionText(Aggression_Passive, STRING_AGGRESSION_PASSIVE)
+			wheelMenu.SetWheelOptionText(Aggression_Aggressive, STRING_AGGRESSION_AGGRESSIVE)
+			wheelMenu.SetWheelOptionText(Aggression_Back, STRING_AGGRESSION_BACK)
+			wheelMenu.SetWheelOptionText(Aggression_Exit, STRING_AGGRESSION_EXIT)
+
+			wheelMenu.SetWheelOptionLabelText(Aggression_Passive, STRING_AGGRESSION_PASSIVE)
+			wheelMenu.SetWheelOptionLabelText(Aggression_Aggressive, STRING_AGGRESSION_AGGRESSIVE)
+			wheelMenu.SetWheelOptionLabelText(Aggression_Back, STRING_AGGRESSION_BACK)
+			wheelMenu.SetWheelOptionLabelText(Aggression_Exit, STRING_AGGRESSION_EXIT)
+			
+			wheelMenu.SetWheelOptionEnabled(Aggression_Passive, true)
+			wheelMenu.SetWheelOptionEnabled(Aggression_Aggressive, true)
+			wheelMenu.SetWheelOptionEnabled(Aggression_Back, true)
+			wheelMenu.SetWheelOptionEnabled(Aggression_Exit, true)
+
+			if followerActor
+				if followerActor.HasKeyword(PlayerFollowerIsPassive) ; Currently passive, disable option
+					wheelMenu.SetWheelOptionTextColor(Aggression_Passive, 0x777777)
+					wheelMenu.SetWheelOptionEnabled(Aggression_Passive, false)
+				Else
+					wheelMenu.SetWheelOptionTextColor(Aggression_Aggressive, 0x777777)
+					wheelMenu.SetWheelOptionEnabled(Aggression_Aggressive, false)
+				Endif
+			Endif
+
+			wheelMenu.SetWheelOptionTextColor(Aggression_Back, 0x777777)
+			
+			If FollowerMenu.XFL_MessageMod_Back == 1
+				wheelMenu.SetWheelOptionEnabled(Aggression_Back, true)
+				wheelMenu.SetWheelOptionTextColor(Aggression_Back, 0xFFFFFF)
+			EndIf
+
+			int ret = wheelMenu.OpenMenu(akForm)
+			If ret == Aggression_Aggressive || ret == Aggression_Passive
+				XFLMain.XFL_SendActionEvent(GetIdentifier(), ret, akForm)
+				FollowerMenu.OnFinishMenu()
+			Elseif ret == Aggression_Back || (ret == -1 && FollowerMenu.XFL_MessageMod_Back == 1)
+				FollowerMenu.XFL_TriggerMenu(akForm, FollowerMenu.GetMenuState("PluginMenu"), FollowerMenu.GetParentState("PluginMenu"), page) ; Force a back all the way to the plugin menu
+			Elseif ret == Aggression_Exit || (ret == -1 && FollowerMenu.XFL_MessageMod_Back == 0)
+				FollowerMenu.OnFinishMenu()
+			EndIf
+		Endif
+		
+		GoToState("")
+	EndFunction
+EndState
 
 State MenuAggression_Classic
 	Function activateSubMenu(Form akForm, string previousState = "", int page = 0)

@@ -2,8 +2,9 @@ Scriptname XFLMagicMenu extends XFLMenuBase
 
 Message Property FollowerMagicMenuMessage Auto
 
-string _rootMenu = "MessageBoxMenu"
-string _proxyMenu = "_root.MessageMenu.proxyMenu."
+string property		ROOT_MENU		= "MessageBoxMenu" autoReadonly
+string Property 	MENU_ROOT		= "_root.MessageMenu.proxyMenu." autoReadonly
+string property		CONFIG_ROOT		= "_global.skyui.util.ConfigManager" autoReadonly
 
 Actor _actor = None
 
@@ -15,18 +16,23 @@ EndFunction
 
 int Function OpenMenu(Form akForm, Form akReceiver = None)
 	_actor = akForm as Actor
-	RegisterForMenu(_rootMenu)
+	RegisterForMenu(ROOT_MENU)
 	return FollowerMagicMenuMessage.Show()
 EndFunction
 
 Event OnMenuOpen(string menuName)
-	If menuName == _rootMenu
-		UI.Invoke(_rootMenu, _proxyMenu + "InitExtensions")
+	If menuName == ROOT_MENU
+		UI.Invoke(ROOT_MENU, MENU_ROOT + "InitExtensions")
 		float[] params = new Float[2]
-		params[0] = 0
+		params[0] = Game.UsingGamepad() as float
 		params[1] = 0
-		UI.InvokeFloatA(_rootMenu, _proxyMenu + "SetPlatform", params)
-		UI.InvokeForm(_rootMenu, _proxyMenu + "Menu_mc.SetMagicMenuExtActor", _actor)
+		UI.InvokeFloatA(ROOT_MENU, MENU_ROOT + "SetPlatform", params)
+		UI.InvokeForm(ROOT_MENU, MENU_ROOT + "Menu_mc.SetMagicMenuExtActor", _actor)
+
+		string[] overrideKeys = new string[1]
+		string[] overrideValues = new string[1]
+		UI.InvokeStringA(ROOT_MENU, CONFIG_ROOT + ".setExternalOverrideKeys", overrideKeys)
+		UI.InvokeStringA(ROOT_MENU, CONFIG_ROOT + ".setExternalOverrideValues", overrideValues)
 
 		; Kill the MessageBox UI OK Sound
 		SoundDescriptor sDescriptor = (Game.GetForm(0x137E7) as Sound).GetDescriptor()
@@ -36,8 +42,8 @@ Event OnMenuOpen(string menuName)
 EndEvent
 
 Event OnMenuClose(string menuName)
-	If menuName == _rootMenu
-		UnregisterForMenu(_rootMenu)
+	If menuName == ROOT_MENU
+		UnregisterForMenu(ROOT_MENU)
 
 		; Restore the MessageBox UI OK Sound
 		SoundDescriptor sDescriptor = (Game.GetForm(0x137E7) as Sound).GetDescriptor()

@@ -58,16 +58,6 @@ Function ToggleActor(Actor follower)
 	EndIf
 EndFunction
 
-; Function ToggleAll()
-; 	int i = 0
-; 	While i <= XFLMain.XFL_GetMaximum()
-; 		If XFLMain.XFL_FollowerAliases[i] && XFLMain.XFL_FollowerAliases[i].GetActorRef() != None
-; 			ToggleActor(XFLMain.XFL_FollowerAliases[i].GetActorRef())
-; 		EndIf
-; 		i += 1
-; 	EndWhile
-; EndFunction
-
 Bool Function showMenu(Form akForm) ; Re-implement
 	return true
 EndFunction

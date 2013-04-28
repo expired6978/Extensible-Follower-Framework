@@ -140,6 +140,7 @@ Function XFL_SetFollow(Actor FollowerActor)
 	FollowerActor.EvaluatePackage()
 	SetObjectiveDisplayed(100 + XFL_GetIndex(FollowerActor), false)
 
+	XFL_OutfitController.XFL_RemovePersistentRef(FollowerActor) ; Remove outfit persistence, we don't need it as long as they are with us
 	XFL_SendPluginEvent(PLUGIN_EVENT_FOLLOW, FollowerActor)
 EndFunction
 
@@ -169,6 +170,16 @@ Function XFL_AddFollower(Actor FollowerActor)
 	ffRestore[i] = FollowerActor.IsIgnoringFriendlyHits()
 	FollowerActor.SetPlayerTeammate(true)
 	FollowerActor.IgnoreFriendlyHits(true)
+
+	; Make follower allied with all other followers
+	int i = 0
+	int limit = XFL_GetMaximum()
+	While i <= limit
+		If XFL_FollowerAliases[i] && XFL_FollowerAliases[i].GetReference() != None
+			FollowerActor.SetRelationshipRank(XFL_FollowerAliases[i].GetReference() as Actor, 3)
+		EndIf
+		i += 1
+	EndWhile
 
 	XFL_FollowerList.AddForm(FollowerActor) ; Used by XFLSelectionMenu
 
@@ -249,6 +260,7 @@ Function XFL_RemoveDeadFollower(Actor follower)
 			XFL_Panel.RemoveActors(follower)
 		Endif
 
+		XFL_OutfitController.XFL_RemovePersistentRef(FollowerActor) ; Follower died, remove their persistence
 		XFL_SendPluginEvent(PLUGIN_EVENT_REMOVE_DEAD_FOLLOWER, follower)
 		XFL_ClearAlias(follower)
 	EndIf

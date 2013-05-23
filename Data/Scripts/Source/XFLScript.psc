@@ -67,7 +67,7 @@ Function XFL_RegisterExtensions()
 		DLC1Extended = false
 	Endif
 	; Check for menu system
-	bool MENUCheck = (Game.GetFormFromFile(0xE00, "XFLMenus.esp") != None)
+	bool MENUCheck = (Game.GetFormFromFile(0xE00, "UIExtensions.esp") != None)
 	If MENUCheck
 		Debug.Trace("EFF Notification: Menu system Loaded.")
 		MENUExtended = true
@@ -172,7 +172,7 @@ Function XFL_AddFollower(Actor FollowerActor)
 	FollowerActor.IgnoreFriendlyHits(true)
 
 	; Make follower allied with all other followers
-	int i = 0
+	i = 0
 	int limit = XFL_GetMaximum()
 	While i <= limit
 		If XFL_FollowerAliases[i] && XFL_FollowerAliases[i].GetReference() != None
@@ -260,7 +260,7 @@ Function XFL_RemoveDeadFollower(Actor follower)
 			XFL_Panel.RemoveActors(follower)
 		Endif
 
-		XFL_OutfitController.XFL_RemovePersistentRef(FollowerActor) ; Follower died, remove their persistence
+		XFL_OutfitController.XFL_RemovePersistentRef(follower) ; Follower died, remove their persistence
 		XFL_SendPluginEvent(PLUGIN_EVENT_REMOVE_DEAD_FOLLOWER, follower)
 		XFL_ClearAlias(follower)
 	EndIf

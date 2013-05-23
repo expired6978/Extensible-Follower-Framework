@@ -118,39 +118,39 @@ State MenuAggression_Standard
 
 		Actor followerActor = akForm as Actor
 
-		XFLWheel wheelMenu = FollowerMenu.XFL_GetFollowerMenu()
+		UIMenuBase wheelMenu = FollowerMenu.XFL_GetStandardMenu("UIWheelMenu")
 		if wheelMenu
-			wheelMenu.ClearMenu()
-			wheelMenu.SetWheelOptionText(Aggression_Passive, STRING_AGGRESSION_PASSIVE)
-			wheelMenu.SetWheelOptionText(Aggression_Aggressive, STRING_AGGRESSION_AGGRESSIVE)
-			wheelMenu.SetWheelOptionText(Aggression_Back, STRING_AGGRESSION_BACK)
-			wheelMenu.SetWheelOptionText(Aggression_Exit, STRING_AGGRESSION_EXIT)
+			wheelMenu.ResetMenu()
+			wheelMenu.SetPropertyIndexString("UIWheelOptionText", Aggression_Passive, STRING_AGGRESSION_PASSIVE)
+			wheelMenu.SetPropertyIndexString("UIWheelOptionText", Aggression_Aggressive, STRING_AGGRESSION_AGGRESSIVE)
+			wheelMenu.SetPropertyIndexString("UIWheelOptionText", Aggression_Back, STRING_AGGRESSION_BACK)
+			wheelMenu.SetPropertyIndexString("UIWheelOptionText", Aggression_Exit, STRING_AGGRESSION_EXIT)
 
-			wheelMenu.SetWheelOptionLabelText(Aggression_Passive, STRING_AGGRESSION_PASSIVE)
-			wheelMenu.SetWheelOptionLabelText(Aggression_Aggressive, STRING_AGGRESSION_AGGRESSIVE)
-			wheelMenu.SetWheelOptionLabelText(Aggression_Back, STRING_AGGRESSION_BACK)
-			wheelMenu.SetWheelOptionLabelText(Aggression_Exit, STRING_AGGRESSION_EXIT)
+			wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Aggression_Passive, STRING_AGGRESSION_PASSIVE)
+			wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Aggression_Aggressive, STRING_AGGRESSION_AGGRESSIVE)
+			wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Aggression_Back, STRING_AGGRESSION_BACK)
+			wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Aggression_Exit, STRING_AGGRESSION_EXIT)
 			
-			wheelMenu.SetWheelOptionEnabled(Aggression_Passive, true)
-			wheelMenu.SetWheelOptionEnabled(Aggression_Aggressive, true)
-			wheelMenu.SetWheelOptionEnabled(Aggression_Back, true)
-			wheelMenu.SetWheelOptionEnabled(Aggression_Exit, true)
+			wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Aggression_Passive, true)
+			wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Aggression_Aggressive, true)
+			wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Aggression_Back, true)
+			wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Aggression_Exit, true)
 
 			if followerActor
 				if followerActor.HasKeyword(PlayerFollowerIsPassive) ; Currently passive, disable option
-					wheelMenu.SetWheelOptionTextColor(Aggression_Passive, 0x777777)
-					wheelMenu.SetWheelOptionEnabled(Aggression_Passive, false)
+					wheelMenu.SetPropertyIndexInt("UIWheelOptionTextColor", Aggression_Passive, 0x777777)
+					wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Aggression_Passive, false)
 				Else
-					wheelMenu.SetWheelOptionTextColor(Aggression_Aggressive, 0x777777)
-					wheelMenu.SetWheelOptionEnabled(Aggression_Aggressive, false)
+					wheelMenu.SetPropertyIndexInt("UIWheelOptionTextColor", Aggression_Aggressive, 0x777777)
+					wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Aggression_Aggressive, false)
 				Endif
 			Endif
 
-			wheelMenu.SetWheelOptionTextColor(Aggression_Back, 0x777777)
+			wheelMenu.SetPropertyIndexInt("UIWheelOptionTextColor", Aggression_Back, 0x777777)
 			
 			If FollowerMenu.XFL_MessageMod_Back == 1
-				wheelMenu.SetWheelOptionEnabled(Aggression_Back, true)
-				wheelMenu.SetWheelOptionTextColor(Aggression_Back, 0xFFFFFF)
+				wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Aggression_Back, true)
+				wheelMenu.SetPropertyIndexInt("UIWheelOptionTextColor", Aggression_Back, 0xFFFFFF)
 			EndIf
 
 			int ret = wheelMenu.OpenMenu(akForm)

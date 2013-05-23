@@ -1,10 +1,3 @@
-Interface\magicmenuext.swf
-Interface\selectionmenu.swf
-Interface\statssheetmenu.swf
-Interface\followermenu.swf
-Interface\messagebox.swf
-Interface\xflmenus\meter.swf
-Interface\xflmenus\icons_category_psychosteve.swf
 Interface\res\XFLLogo.dds
 Interface\translations\XFLMenus_ENGLISH.txt
 Interface\translations\XFLPlugins_ENGLISH.txt
@@ -254,8 +247,6 @@ Scripts\XFLConfig.pex
 Scripts\XFLConfigBook.pex
 Scripts\XFLFocusFire.pex
 Scripts\XFLLoadSettings.pex
-Scripts\XFLMagicMenu.pex
-Scripts\XFLMenuBase.pex
 Scripts\XFLMenuScript.pex
 Scripts\XFLMindControl.pex
 Scripts\XFLOutfit.pex
@@ -271,11 +262,8 @@ Scripts\XFLPluginSpells.pex
 Scripts\XFLPluginTrain.pex
 Scripts\XFLPortal.pex
 Scripts\XFLScript.pex
-Scripts\XFLSelectionMenu.pex
-Scripts\XFLStatsMenu.pex
 Scripts\XFLTelepathy.pex
 Scripts\XFLTeleport.pex
-Scripts\XFLWheel.pex
 Scripts\Source\EXP_DialogueFollowerScript.psc
 Scripts\Source\EXP_FreeformSkyHavenTempleAScript.psc
 Scripts\Source\EXP_HirelingQuest.psc
@@ -520,8 +508,6 @@ Scripts\Source\XFLConfig.psc
 Scripts\Source\XFLConfigBook.psc
 Scripts\Source\XFLFocusFire.psc
 Scripts\Source\XFLLoadSettings.psc
-Scripts\Source\XFLMagicMenu.psc
-Scripts\Source\XFLMenuBase.psc
 Scripts\Source\XFLMenuScript.psc
 Scripts\Source\XFLMindControl.psc
 Scripts\Source\XFLOutfit.psc
@@ -537,8 +523,5 @@ Scripts\Source\XFLPluginSpells.psc
 Scripts\Source\XFLPluginTrain.psc
 Scripts\Source\XFLPortal.psc
 Scripts\Source\XFLScript.psc
-Scripts\Source\XFLSelectionMenu.psc
-Scripts\Source\XFLStatsMenu.psc
 Scripts\Source\XFLTelepathy.psc
 Scripts\Source\XFLTeleport.psc
-Scripts\Source\XFLWheel.psc

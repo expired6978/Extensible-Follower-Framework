@@ -1210,7 +1210,7 @@ Form Function XFL_SelectFollowers()
 	UIMenuBase selection = XFL_GetStandardMenu("UISelectionMenu")
 	selection.SetPropertyInt("UISelectionMenuMode", 1)
 	selection.OpenMenu(XFLMain.XFL_FollowerList, selection)
-	return selection.GetFormResult()
+	return selection.GetResultForm()
 EndFunction
 
 UIMenuBase Function XFL_GetStandardMenu(string menuName)

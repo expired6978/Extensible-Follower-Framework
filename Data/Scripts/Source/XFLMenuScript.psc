@@ -496,19 +496,18 @@ State FollowerMenu_Standard
 
 		UIMenuBase wheelMenu = XFL_GetStandardMenu("UIWheelMenu")
 		if wheelMenu
-			wheelMenu.ResetMenu()
-			wheelMenu.SetPropertyIndexString("UIWheelOptionText", Command_Group, STRING_COMMAND_GROUP)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionText", Command_Command, STRING_COMMAND_COMMAND)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionText", Command_Talk, STRING_COMMAND_TALK)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionText", Command_Exit, STRING_COMMAND_EXIT)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Command_Group, STRING_COMMAND_GROUP)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Command_Command, STRING_COMMAND_COMMAND)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Command_Talk, STRING_COMMAND_TALK)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Command_Exit, STRING_COMMAND_EXIT)
-			wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Command_Group, true)
-			wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Command_Command, true)
-			wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Command_Talk, true)
-			wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Command_Exit, true)
+			wheelMenu.SetPropertyIndexString("optionText", Command_Group, STRING_COMMAND_GROUP)
+			wheelMenu.SetPropertyIndexString("optionText", Command_Command, STRING_COMMAND_COMMAND)
+			wheelMenu.SetPropertyIndexString("optionText", Command_Talk, STRING_COMMAND_TALK)
+			wheelMenu.SetPropertyIndexString("optionText", Command_Exit, STRING_COMMAND_EXIT)
+			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Group, STRING_COMMAND_GROUP)
+			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Command, STRING_COMMAND_COMMAND)
+			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Talk, STRING_COMMAND_TALK)
+			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Exit, STRING_COMMAND_EXIT)
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Group, true)
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Command, true)
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Talk, true)
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Exit, true)
 			int ret = wheelMenu.OpenMenu(akForm)
 			If ret == Command_Group
 				XFL_TriggerMenu(XFLMain.XFL_FollowerList, GetMenuState("CommandMenu"), "")
@@ -661,59 +660,58 @@ State CommandMenu_Standard
 
 		UIMenuBase wheelMenu = XFL_GetStandardMenu("UIWheelMenu")
 		if wheelMenu
-			wheelMenu.ResetMenu()
-			wheelMenu.SetPropertyIndexString("UIWheelOptionText", Command_Wait, STRING_COMMAND_WAIT)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionText", Command_Follow, STRING_COMMAND_FOLLOW)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionText", Command_Dismiss, STRING_COMMAND_DISMISS)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionText", Command_Relax, STRING_COMMAND_RELAX)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionText", Command_Trade, STRING_COMMAND_TRADE)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionText", Command_Stats, STRING_COMMAND_STATS)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionText", Command_More, STRING_COMMAND_MORE)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionText", Command_Back, STRING_COMMAND_BACK)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionText", Command_Exit, STRING_COMMAND_EXIT)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Command_Wait, STRING_COMMAND_WAIT)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Command_Follow, STRING_COMMAND_FOLLOW)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Command_Dismiss, STRING_COMMAND_DISMISS)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Command_Relax, STRING_COMMAND_RELAX)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Command_Trade, STRING_COMMAND_TRADE)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Command_Stats, STRING_COMMAND_STATS)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Command_More, STRING_COMMAND_MORE)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Command_Back, STRING_COMMAND_BACK)
-			wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Command_Exit, STRING_COMMAND_EXIT)
-			wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Command_Wait, true)
-			wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Command_Follow, true)
-			wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Command_WaitFollow, true)
-			wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Command_Dismiss, true)
-			wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Command_Relax, true)
-			wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Command_Trade, true)
-			wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Command_Stats, true)
-			wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Command_More, true)
-			wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Command_Back, false)
-			wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Command_Exit, true)
-			wheelMenu.SetPropertyIndexInt("UIWheelOptionTextColor", Command_Back, 0x777777)
+			wheelMenu.SetPropertyIndexString("optionText", Command_Wait, STRING_COMMAND_WAIT)
+			wheelMenu.SetPropertyIndexString("optionText", Command_Follow, STRING_COMMAND_FOLLOW)
+			wheelMenu.SetPropertyIndexString("optionText", Command_Dismiss, STRING_COMMAND_DISMISS)
+			wheelMenu.SetPropertyIndexString("optionText", Command_Relax, STRING_COMMAND_RELAX)
+			wheelMenu.SetPropertyIndexString("optionText", Command_Trade, STRING_COMMAND_TRADE)
+			wheelMenu.SetPropertyIndexString("optionText", Command_Stats, STRING_COMMAND_STATS)
+			wheelMenu.SetPropertyIndexString("optionText", Command_More, STRING_COMMAND_MORE)
+			wheelMenu.SetPropertyIndexString("optionText", Command_Back, STRING_COMMAND_BACK)
+			wheelMenu.SetPropertyIndexString("optionText", Command_Exit, STRING_COMMAND_EXIT)
+			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Wait, STRING_COMMAND_WAIT)
+			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Follow, STRING_COMMAND_FOLLOW)
+			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Dismiss, STRING_COMMAND_DISMISS)
+			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Relax, STRING_COMMAND_RELAX)
+			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Trade, STRING_COMMAND_TRADE)
+			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Stats, STRING_COMMAND_STATS)
+			wheelMenu.SetPropertyIndexString("optionLabelText", Command_More, STRING_COMMAND_MORE)
+			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Back, STRING_COMMAND_BACK)
+			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Exit, STRING_COMMAND_EXIT)
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Wait, true)
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Follow, true)
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_WaitFollow, true)
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Dismiss, true)
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Relax, true)
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Trade, true)
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Stats, true)
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_More, true)
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Back, false)
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Exit, true)
+			wheelMenu.SetPropertyIndexInt("optionTextColor", Command_Back, 0x777777)
 
 			float waiting = -1
 			If followerActor
 				followerActor.GetActorValue("WaitingForPlayer")
 				If waiting == 0 ; Not waiting for player
-					wheelMenu.SetPropertyIndexString("UIWheelOptionText", Command_WaitFollow, STRING_COMMAND_WAIT)
-					wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Command_WaitFollow, STRING_COMMAND_WAIT)
+					wheelMenu.SetPropertyIndexString("optionText", Command_WaitFollow, STRING_COMMAND_WAIT)
+					wheelMenu.SetPropertyIndexString("optionLabelText", Command_WaitFollow, STRING_COMMAND_WAIT)
 				Elseif waiting == 1 ; Waiting for player
-					wheelMenu.SetPropertyIndexString("UIWheelOptionText", Command_WaitFollow, STRING_COMMAND_FOLLOW)
-					wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Command_WaitFollow, STRING_COMMAND_FOLLOW)
-					wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Command_Relax, false)
+					wheelMenu.SetPropertyIndexString("optionText", Command_WaitFollow, STRING_COMMAND_FOLLOW)
+					wheelMenu.SetPropertyIndexString("optionLabelText", Command_WaitFollow, STRING_COMMAND_FOLLOW)
+					wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Relax, false)
 				Elseif waiting == 2 ; Relaxing
-					wheelMenu.SetPropertyIndexString("UIWheelOptionText", Command_WaitFollow, STRING_COMMAND_FOLLOW)
-					wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Command_WaitFollow, STRING_COMMAND_FOLLOW)
+					wheelMenu.SetPropertyIndexString("optionText", Command_WaitFollow, STRING_COMMAND_FOLLOW)
+					wheelMenu.SetPropertyIndexString("optionLabelText", Command_WaitFollow, STRING_COMMAND_FOLLOW)
 				Else ; Waiting state neither of these three, show all
-					wheelMenu.SetPropertyIndexString("UIWheelOptionText", Command_WaitFollow, STRING_COMMAND_FOLLOW)
-					wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Command_WaitFollow, STRING_COMMAND_FOLLOW)
+					wheelMenu.SetPropertyIndexString("optionText", Command_WaitFollow, STRING_COMMAND_FOLLOW)
+					wheelMenu.SetPropertyIndexString("optionLabelText", Command_WaitFollow, STRING_COMMAND_FOLLOW)
 				EndIf
 			Endif
 			
 			If XFL_MessageMod_Back == 1 ; Back button only available when theres a single actor
-				wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Command_Back, true)
-				wheelMenu.SetPropertyIndexInt("UIWheelOptionTextColor", Command_Back, 0xFFFFFF)
+				wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Back, true)
+				wheelMenu.SetPropertyIndexInt("optionTextColor", Command_Back, 0xFFFFFF)
 			EndIf
 
 			int ret = wheelMenu.OpenMenu(akForm)
@@ -993,48 +991,47 @@ State PluginMenu_Standard
 
 			UIMenuBase wheelMenu = XFL_GetStandardMenu("UIWheelMenu")
 			if wheelMenu
-				wheelMenu.ResetMenu()
 				; Setup plugin menu options
 				i = 0
 				While i < pluginIndexes.Length
 					If pluginIndexes[i] != -1
 						XFLPlugin plugin = (XFL_FollowerPlugins.GetAt(pluginIndexes[i]) As XFLPlugin)
 						If plugin
-							wheelMenu.SetPropertyIndexString("UIWheelOptionText", i, plugin.GetPluginName())
-							wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", i, plugin.GetPluginName())
-							wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", i, true)
+							wheelMenu.SetPropertyIndexString("optionText", i, plugin.GetPluginName())
+							wheelMenu.SetPropertyIndexString("optionLabelText", i, plugin.GetPluginName())
+							wheelMenu.SetPropertyIndexBool("optionEnabled", i, true)
 						Endif
 					Else
-						wheelMenu.SetPropertyIndexString("UIWheelOptionText", i, "")
-						wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", i, "")
-						wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", i, false)
+						wheelMenu.SetPropertyIndexString("optionText", i, "")
+						wheelMenu.SetPropertyIndexString("optionLabelText", i, "")
+						wheelMenu.SetPropertyIndexBool("optionEnabled", i, false)
 					EndIf
 					i += 1
 				EndWhile
 
-				wheelMenu.SetPropertyIndexString("UIWheelOptionText", Command_Plugin_Back, STRING_COMMAND_BACK)
-				wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Command_Plugin_Back, STRING_COMMAND_BACK)
-				wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Command_Plugin_Back, false)
-				wheelMenu.SetPropertyIndexInt("UIWheelOptionTextColor", Command_Plugin_Back, 0x777777)
+				wheelMenu.SetPropertyIndexString("optionText", Command_Plugin_Back, STRING_COMMAND_BACK)
+				wheelMenu.SetPropertyIndexString("optionLabelText", Command_Plugin_Back, STRING_COMMAND_BACK)
+				wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Plugin_Back, false)
+				wheelMenu.SetPropertyIndexInt("optionTextColor", Command_Plugin_Back, 0x777777)
 
-				wheelMenu.SetPropertyIndexString("UIWheelOptionText", Command_Plugin_Next, STRING_COMMAND_NEXT)
-				wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Command_Plugin_Next, STRING_COMMAND_NEXT)
-				wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Command_Plugin_Next, false)
-				wheelMenu.SetPropertyIndexInt("UIWheelOptionTextColor", Command_Plugin_Next, 0x777777)
+				wheelMenu.SetPropertyIndexString("optionText", Command_Plugin_Next, STRING_COMMAND_NEXT)
+				wheelMenu.SetPropertyIndexString("optionLabelText", Command_Plugin_Next, STRING_COMMAND_NEXT)
+				wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Plugin_Next, false)
+				wheelMenu.SetPropertyIndexInt("optionTextColor", Command_Plugin_Next, 0x777777)
 
 				If XFL_MessageMod_Next
-					wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Command_Plugin_Next, true)
-					wheelMenu.SetPropertyIndexInt("UIWheelOptionTextColor", Command_Plugin_Next, 0xFFFFFF)
+					wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Plugin_Next, true)
+					wheelMenu.SetPropertyIndexInt("optionTextColor", Command_Plugin_Next, 0xFFFFFF)
 				Endif
 
 				If Command_Plugin_Back_Enabled
-					wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Command_Plugin_Back, true)
-					wheelMenu.SetPropertyIndexInt("UIWheelOptionTextColor", Command_Plugin_Back, 0xFFFFFF)
+					wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Plugin_Back, true)
+					wheelMenu.SetPropertyIndexInt("optionTextColor", Command_Plugin_Back, 0xFFFFFF)
 				EndIf
 
-				wheelMenu.SetPropertyIndexString("UIWheelOptionText", Command_Plugin_Exit, STRING_COMMAND_EXIT)
-				wheelMenu.SetPropertyIndexString("UIWheelOptionLabelText", Command_Plugin_Exit, STRING_COMMAND_EXIT)
-				wheelMenu.SetPropertyIndexBool("UIWheelOptionEnabled", Command_Plugin_Exit, true)
+				wheelMenu.SetPropertyIndexString("optionText", Command_Plugin_Exit, STRING_COMMAND_EXIT)
+				wheelMenu.SetPropertyIndexString("optionLabelText", Command_Plugin_Exit, STRING_COMMAND_EXIT)
+				wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Plugin_Exit, true)
 
 				ret = wheelMenu.OpenMenu(akForm)			
 				If ret >= 0 && ret < Command_Plugin_Back ; Activate the correct menu
@@ -1208,33 +1205,13 @@ EndEvent
 ; Lock selection until menu returns data
 Form Function XFL_SelectFollowers()
 	UIMenuBase selection = XFL_GetStandardMenu("UISelectionMenu")
-	selection.SetPropertyInt("UISelectionMenuMode", 1)
+	selection.SetPropertyInt("menuMode", 1)
 	selection.OpenMenu(XFLMain.XFL_FollowerList, selection)
 	return selection.GetResultForm()
 EndFunction
 
-UIMenuBase Function XFL_GetStandardMenu(string menuName)
-	UIMenuBase menuBase = XFL_GetSelectionMenu()
-	if menuBase && menuBase.GetMenuName() == menuName
-		return menuBase
-	endIf
-	menuBase = XFL_GetFollowerMenu()
-	if menuBase && menuBase.GetMenuName() == menuName
-		return menuBase
-	endIf
-	menuBase = XFL_GetMagicMenu()
-	if menuBase && menuBase.GetMenuName() == menuName
-		return menuBase
-	Endif
-	menuBase = XFL_GetStatsMenu()
-	if menuBase && menuBase.GetMenuName() == menuName
-		return menuBase
-	Endif
-	return None
-EndFunction
-
 ; Menu Extensions
-UIMenuBase Function XFL_GetSelectionMenu()
+UIMenuBase Function XFL_GetStandardMenu(string menuName)
 	If XFLMain.SKSEExtended == false
 		Debug.Trace("EFF WARNING: This feature requires SKSE.")
 		return None
@@ -1243,39 +1220,5 @@ UIMenuBase Function XFL_GetSelectionMenu()
 		return None
 	Endif
 	
-	return (Game.GetFormFromFile(0xE00, "UIExtensions.esp") as UIMenuBase)
-EndFunction
-
-UIMenuBase Function XFL_GetFollowerMenu()
-	If XFLMain.SKSEExtended == false
-		Debug.Trace("EFF WARNING: This feature requires SKSE.")
-		return None
-	Elseif XFLMain.MENUExtended == false
-		Debug.Trace("EFF WARNING: This menu requires UIExtensions.")
-		return None
-	Endif
-	
-	return (Game.GetFormFromFile(0xE01, "UIExtensions.esp") as UIMenuBase)
-EndFunction
-
-UIMenuBase Function XFL_GetMagicMenu()
-	If XFLMain.SKSEExtended == false
-		Debug.Trace("EFF WARNING: This feature requires SKSE.")
-		return None
-	Elseif XFLMain.MENUExtended == false
-		Debug.Trace("EFF WARNING: This menu requires UIExtensions.")
-		return None
-	Endif
-	return (Game.GetFormFromFile(0xE02, "UIExtensions.esp") as UIMenuBase)
-EndFunction
-
-UIMenuBase Function XFL_GetStatsMenu()
-	If XFLMain.SKSEExtended == false
-		Debug.Trace("EFF WARNING: This feature requires SKSE.")
-		return None
-	Elseif XFLMain.MENUExtended == false
-		Debug.Trace("EFF WARNING: This menu requires UIExtensions.")
-		return None
-	Endif
-	return (Game.GetFormFromFile(0xE03, "UIExtensions.esp") as UIMenuBase)
+	return UIExtensions.GetMenu(menuName)
 EndFunction

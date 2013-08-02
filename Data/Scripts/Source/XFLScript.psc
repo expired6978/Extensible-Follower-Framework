@@ -159,8 +159,9 @@ Function XFL_AddFollower(Actor FollowerActor)
 	FollowerActor.RemoveFromFaction(FollowerScript.pDismissedFollower)
 	
 	; They don't like us? Force them to!
-	If FollowerActor.GetRelationshipRank(Game.GetPlayer()) < 3 && FollowerActor.GetRelationshipRank(Game.GetPlayer()) >= 0
-		FollowerActor.SetRelationshipRank(Game.GetPlayer(), 3)
+	Actor playerActor = Game.GetPlayer()
+	If FollowerActor.GetRelationshipRank(playerActor) < 3 && FollowerActor.GetRelationshipRank(playerActor) >= 0
+		FollowerActor.SetRelationshipRank(playerActor, 3)
 	EndIf
 	
 	FollowerActor.AddToFaction(XFL_FollowerFaction)
@@ -176,7 +177,10 @@ Function XFL_AddFollower(Actor FollowerActor)
 	int limit = XFL_GetMaximum()
 	While i <= limit
 		If XFL_FollowerAliases[i] && XFL_FollowerAliases[i].GetReference() != None
-			FollowerActor.SetRelationshipRank(XFL_FollowerAliases[i].GetReference() as Actor, 3)
+			Actor foundActor = XFL_FollowerAliases[i].GetReference() as Actor
+			If FollowerActor.GetRelationshipRank(foundActor) >= 0 && FollowerActor.GetRelationshipRank(foundActor) < 3
+				FollowerActor.SetRelationshipRank(foundActor, 3)
+			Endif
 		EndIf
 		i += 1
 	EndWhile

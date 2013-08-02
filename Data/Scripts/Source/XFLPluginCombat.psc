@@ -89,4 +89,20 @@ Function activateSubMenu(Form akForm, string previousState = "", int page = 0)
 EndFunction
 
 
+; New menu info
+string[] Function GetMenuEntries(Form akForm)
+	string[] entries = new string[7]
+	int itemOffset = GetIdentifier() * 100
+	entries[0] = GetPluginName() + ";;" + -1 + ";;" + GetIdentifier() + ";;" + 0 + ";;1"
+	entries[1] = "$Default" + ";;" + GetIdentifier() + ";;" + (itemOffset + 0) + ";;" + 0 + ";;0"
+	entries[2] = "$Archer" + ";;" + GetIdentifier() + ";;" + (itemOffset + 1) + ";;" + 1 + ";;0"
+	entries[3] = "$Berserker" + ";;" + GetIdentifier() + ";;" + (itemOffset + 2) + ";;" + 2 + ";;0"
+	entries[4] = "$Mage" + ";;" + GetIdentifier() + ";;" + (itemOffset + 3) + ";;" + 3 + ";;0"
+	entries[5] = "$Thief" + ";;" + GetIdentifier() + ";;" + (itemOffset + 4) + ";;" + 4 + ";;0"
+	entries[6] = "$Warrior" + ";;" + GetIdentifier() + ";;" + (itemOffset + 5) + ";;" + 5 + ";;0"
+	return entries
+EndFunction
 
+Event OnMenuEntryTriggered(Form akForm, int itemId, int callback)
+	XFLMain.XFL_SendActionEvent(GetIdentifier(), 0, akForm, None, callback)
+EndEvent

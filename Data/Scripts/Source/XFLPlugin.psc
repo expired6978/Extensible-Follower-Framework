@@ -15,6 +15,15 @@ string Function GetPluginName()
 	return ""
 EndFunction
 
+string[] Function GetMenuEntries(Form akForm)
+	return new string[1]
+EndFunction
+
+; Called when the menu system triggers an entry
+Event OnMenuEntryTriggered(Form akForm, int itemId, int callback)
+	
+EndEvent
+
 ; Standard initialization for the plugin, DO NOT EDIT UNLESS YOU KNOW WHAT YOU'RE DOING
 Event OnInit()
 	If XFLMain && FollowerMenu

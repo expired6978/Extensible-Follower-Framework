@@ -208,3 +208,29 @@ State MenuGather_Classic
 	EndFunction
 EndState
 
+; New menu info
+string[] Function GetMenuEntries(Form akForm)
+	string[] entries = new string[12]
+	int itemOffset = GetIdentifier() * 100
+	entries[0] = GetPluginName() + ";;" + -1 + ";;" + GetIdentifier() + ";;" + 0 + ";;1"
+	entries[1] = "$Collect" + ";;" + GetIdentifier() + ";;" + (itemOffset + 0) + ";;" + 0 + ";;1"
+	entries[2] = "$Harvest" + ";;" + (itemOffset + 0) + ";;" + (itemOffset + 3) + ";;" + 3 + ";;0"
+	entries[3] = "$Ammo" + ";;" + (itemOffset + 0) + ";;" + (itemOffset + 4) + ";;" + 4 + ";;0"
+	entries[4] = "$Armor" + ";;" + (itemOffset + 0) + ";;" + (itemOffset + 5) + ";;" + 5 + ";;0"
+	entries[5] = "$Books" + ";;" + (itemOffset + 0) + ";;" + (itemOffset + 6) + ";;" + 6 + ";;0"
+	entries[6] = "$Food" + ";;" + (itemOffset + 0) + ";;" + (itemOffset + 7) + ";;" + 7 + ";;0"
+	entries[7] = "$Ingredients" + ";;" + (itemOffset + 0) + ";;" + (itemOffset + 8) + ";;" + 8 + ";;0"
+	entries[8] = "$Keys" + ";;" + (itemOffset + 0) + ";;" + (itemOffset + 9) + ";;" + 9 + ";;0"
+	entries[9] = "$Misc" + ";;" + (itemOffset + 0) + ";;" + (itemOffset + 10) + ";;" + 10 + ";;0"
+	entries[10] = "$Weapons" + ";;" + (itemOffset + 0) + ";;" + (itemOffset + 11) + ";;" + 11 + ";;0"
+	entries[11] = "$Stop" + ";;" + GetIdentifier() + ";;" + (itemOffset + 1) + ";;" + 1 + ";;0"
+	return entries
+EndFunction
+
+Event OnMenuEntryTriggered(Form akForm, int itemId, int callback)
+	If callback == 1
+		XFLMain.XFL_SendActionEvent(GetIdentifier(), 1, akForm)
+	Else
+		XFLMain.XFL_SendActionEvent(GetIdentifier(), 0, akForm, None, callback)
+	Endif
+EndEvent

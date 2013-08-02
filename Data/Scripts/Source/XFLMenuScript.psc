@@ -952,118 +952,151 @@ State PluginMenu_Standard
 
 		Actor followerActor = akForm as Actor
 		
-		bool isGroup = (previousState == GetMenuState("GroupMenu"))		
-		Int[] pluginIndexes = new Int[5] ; Store which Plugin Index corresponds to which Menu index
-		int pageEnum = pluginIndexes.Length
-				
-		int ret = 0
-		While ret != Command_Plugin_Exit
-			bool Command_Plugin_Back_Enabled = (previousState != "")
-			pluginIndexes[0] = -1
-			pluginIndexes[1] = -1
-			pluginIndexes[2] = -1
-			pluginIndexes[3] = -1
-			pluginIndexes[4] = -1
-
+		bool isGroup = (previousState == GetMenuState("GroupMenu"))
+		UIListMenu listMenu = UIExtensions.GetMenu("UIListMenu") as UIListMenu
+		if listMenu
 			int totalPlugins = XFL_FollowerPlugins.GetSize()
 			int i = 0
 			int itemIndex = 0
 			While i < totalPlugins ; Index available plugins
-				int pluginIndex = (page * pageEnum) + i
-				XFLPlugin plugin = (XFL_FollowerPlugins.GetAt(pluginIndex) As XFLPlugin)
+				XFLPlugin plugin = (XFL_FollowerPlugins.GetAt(i) As XFLPlugin)
 				If plugin && plugin.isEnabled() && ((!isGroup && plugin.showMenu(akForm)) || (isGroup && plugin.showGroupMenu()))
-					If itemIndex < pluginIndexes.Length
-						pluginIndexes[itemIndex] = pluginIndex
-						itemIndex += 1
+					string[] premadeEntries = plugin.GetMenuEntries(akForm)
+					if premadeEntries[0] != ""
+						listMenu.SetPropertyStringA("appendEntries", premadeEntries)
 					Endif
-				Else
-					totalPlugins -= 1
 				Endif
 				i += 1
 			EndWhile
 
-			; If there are more mods then what are displayed
-			If totalPlugins > (page + 1) * pageEnum
-				XFL_MessageMod_Next = 1
-			Else
-				XFL_MessageMod_Next = 0
-			EndIf
+			if listMenu.OpenMenu(akForm)
+				int itemId = listMenu.GetResultInt() ; ItemId
+				int identifier = (itemId / 100) as int
+				int callback = listMenu.GetResultFloat() as int ; Callback value
 
-			UIMenuBase wheelMenu = XFL_GetStandardMenu("UIWheelMenu")
-			if wheelMenu
-				; Setup plugin menu options
 				i = 0
-				While i < pluginIndexes.Length
-					If pluginIndexes[i] != -1
-						XFLPlugin plugin = (XFL_FollowerPlugins.GetAt(pluginIndexes[i]) As XFLPlugin)
-						If plugin
-							wheelMenu.SetPropertyIndexString("optionText", i, plugin.GetPluginName())
-							wheelMenu.SetPropertyIndexString("optionLabelText", i, plugin.GetPluginName())
-							wheelMenu.SetPropertyIndexBool("optionEnabled", i, true)
-						Endif
-					Else
-						wheelMenu.SetPropertyIndexString("optionText", i, "")
-						wheelMenu.SetPropertyIndexString("optionLabelText", i, "")
-						wheelMenu.SetPropertyIndexBool("optionEnabled", i, false)
-					EndIf
+				While i < totalPlugins ; Index available plugins
+					XFLPlugin plugin = (XFL_FollowerPlugins.GetAt(i) As XFLPlugin)
+					If plugin && plugin.GetIdentifier() == identifier
+						plugin.OnMenuEntryTriggered(akForm, itemId, callback)
+					Endif
 					i += 1
 				EndWhile
-
-				wheelMenu.SetPropertyIndexString("optionText", Command_Plugin_Back, STRING_COMMAND_BACK)
-				wheelMenu.SetPropertyIndexString("optionLabelText", Command_Plugin_Back, STRING_COMMAND_BACK)
-				wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Plugin_Back, false)
-				wheelMenu.SetPropertyIndexInt("optionTextColor", Command_Plugin_Back, 0x777777)
-
-				wheelMenu.SetPropertyIndexString("optionText", Command_Plugin_Next, STRING_COMMAND_NEXT)
-				wheelMenu.SetPropertyIndexString("optionLabelText", Command_Plugin_Next, STRING_COMMAND_NEXT)
-				wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Plugin_Next, false)
-				wheelMenu.SetPropertyIndexInt("optionTextColor", Command_Plugin_Next, 0x777777)
-
-				If XFL_MessageMod_Next
-					wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Plugin_Next, true)
-					wheelMenu.SetPropertyIndexInt("optionTextColor", Command_Plugin_Next, 0xFFFFFF)
-				Endif
-
-				If Command_Plugin_Back_Enabled
-					wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Plugin_Back, true)
-					wheelMenu.SetPropertyIndexInt("optionTextColor", Command_Plugin_Back, 0xFFFFFF)
-				EndIf
-
-				wheelMenu.SetPropertyIndexString("optionText", Command_Plugin_Exit, STRING_COMMAND_EXIT)
-				wheelMenu.SetPropertyIndexString("optionLabelText", Command_Plugin_Exit, STRING_COMMAND_EXIT)
-				wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Plugin_Exit, true)
-
-				ret = wheelMenu.OpenMenu(akForm)			
-				If ret >= 0 && ret < Command_Plugin_Back ; Activate the correct menu
-					XFLPlugin plugin = (XFL_FollowerPlugins.GetAt(pluginIndexes[ret]) as XFLPlugin)
-					If plugin
-						If isGroup
-							plugin.activateGroupMenu(page, akForm)
-						Else
-							plugin.activateMenu(page, akForm)
-						Endif
-					EndIf
-					ret = Command_Plugin_Exit ; Discontinue menu loop
-				Elseif ret == Command_Plugin_Back || (ret == -1 && XFL_MessageMod_Back == 1)
-					If page == 0
-						XFL_TriggerMenu(akForm, previousState, GetParentState(previousState)) ; Third level menu, need parent of parent
-						ret = Command_Plugin_Exit ; Discontinue menu loop
-					Else
-						page -= 1
-						
-						If page == 0 && previousState == "" ; We're returning to the first page of the menu, but we had no previous menu
-							XFL_MessageMod_Back = 0
-						EndIf
-					EndIf
-				Elseif ret == Command_Plugin_Next
-					XFL_MessageMod_Back = 1 ; We have previous pages
-					page += 1
-				Elseif ret == Command_Plugin_Exit || (ret == -1 && XFL_MessageMod_Back == 0)
-					ret = Command_Plugin_Exit ; Discontinue menu loop
-					OnFinishMenu()
-				EndIf
+			Else
+				XFL_TriggerMenu(akForm, previousState, GetParentState(previousState)) ; Third level menu, need parent of parent
 			Endif
-		EndWhile
+		Endif
+		; Int[] pluginIndexes = new Int[5] ; Store which Plugin Index corresponds to which Menu index
+		; int pageEnum = pluginIndexes.Length
+				
+		; int ret = 0
+		; While ret != Command_Plugin_Exit
+		; 	bool Command_Plugin_Back_Enabled = (previousState != "")
+		; 	pluginIndexes[0] = -1
+		; 	pluginIndexes[1] = -1
+		; 	pluginIndexes[2] = -1
+		; 	pluginIndexes[3] = -1
+		; 	pluginIndexes[4] = -1
+
+		; 	int totalPlugins = XFL_FollowerPlugins.GetSize()
+		; 	int i = 0
+		; 	int itemIndex = 0
+		; 	While i < totalPlugins ; Index available plugins
+		; 		int pluginIndex = (page * pageEnum) + i
+		; 		XFLPlugin plugin = (XFL_FollowerPlugins.GetAt(pluginIndex) As XFLPlugin)
+		; 		If plugin && plugin.isEnabled() && ((!isGroup && plugin.showMenu(akForm)) || (isGroup && plugin.showGroupMenu()))
+		; 			If itemIndex < pluginIndexes.Length
+		; 				pluginIndexes[itemIndex] = pluginIndex
+		; 				itemIndex += 1
+		; 			Endif
+		; 		Else
+		; 			totalPlugins -= 1
+		; 		Endif
+		; 		i += 1
+		; 	EndWhile
+
+		; 	; If there are more mods then what are displayed
+		; 	If totalPlugins > (page + 1) * pageEnum
+		; 		XFL_MessageMod_Next = 1
+		; 	Else
+		; 		XFL_MessageMod_Next = 0
+		; 	EndIf
+
+		; 	UIMenuBase wheelMenu = XFL_GetStandardMenu("UIWheelMenu")
+		; 	if wheelMenu
+		; 		; Setup plugin menu options
+		; 		i = 0
+		; 		While i < pluginIndexes.Length
+		; 			If pluginIndexes[i] != -1
+		; 				XFLPlugin plugin = (XFL_FollowerPlugins.GetAt(pluginIndexes[i]) As XFLPlugin)
+		; 				If plugin
+		; 					wheelMenu.SetPropertyIndexString("optionText", i, plugin.GetPluginName())
+		; 					wheelMenu.SetPropertyIndexString("optionLabelText", i, plugin.GetPluginName())
+		; 					wheelMenu.SetPropertyIndexBool("optionEnabled", i, true)
+		; 				Endif
+		; 			Else
+		; 				wheelMenu.SetPropertyIndexString("optionText", i, "")
+		; 				wheelMenu.SetPropertyIndexString("optionLabelText", i, "")
+		; 				wheelMenu.SetPropertyIndexBool("optionEnabled", i, false)
+		; 			EndIf
+		; 			i += 1
+		; 		EndWhile
+
+		; 		wheelMenu.SetPropertyIndexString("optionText", Command_Plugin_Back, STRING_COMMAND_BACK)
+		; 		wheelMenu.SetPropertyIndexString("optionLabelText", Command_Plugin_Back, STRING_COMMAND_BACK)
+		; 		wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Plugin_Back, false)
+		; 		wheelMenu.SetPropertyIndexInt("optionTextColor", Command_Plugin_Back, 0x777777)
+
+		; 		wheelMenu.SetPropertyIndexString("optionText", Command_Plugin_Next, STRING_COMMAND_NEXT)
+		; 		wheelMenu.SetPropertyIndexString("optionLabelText", Command_Plugin_Next, STRING_COMMAND_NEXT)
+		; 		wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Plugin_Next, false)
+		; 		wheelMenu.SetPropertyIndexInt("optionTextColor", Command_Plugin_Next, 0x777777)
+
+		; 		If XFL_MessageMod_Next
+		; 			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Plugin_Next, true)
+		; 			wheelMenu.SetPropertyIndexInt("optionTextColor", Command_Plugin_Next, 0xFFFFFF)
+		; 		Endif
+
+		; 		If Command_Plugin_Back_Enabled
+		; 			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Plugin_Back, true)
+		; 			wheelMenu.SetPropertyIndexInt("optionTextColor", Command_Plugin_Back, 0xFFFFFF)
+		; 		EndIf
+
+		; 		wheelMenu.SetPropertyIndexString("optionText", Command_Plugin_Exit, STRING_COMMAND_EXIT)
+		; 		wheelMenu.SetPropertyIndexString("optionLabelText", Command_Plugin_Exit, STRING_COMMAND_EXIT)
+		; 		wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Plugin_Exit, true)
+
+		; 		ret = wheelMenu.OpenMenu(akForm)			
+		; 		If ret >= 0 && ret < Command_Plugin_Back ; Activate the correct menu
+		; 			XFLPlugin plugin = (XFL_FollowerPlugins.GetAt(pluginIndexes[ret]) as XFLPlugin)
+		; 			If plugin
+		; 				If isGroup
+		; 					plugin.activateGroupMenu(page, akForm)
+		; 				Else
+		; 					plugin.activateMenu(page, akForm)
+		; 				Endif
+		; 			EndIf
+		; 			ret = Command_Plugin_Exit ; Discontinue menu loop
+		; 		Elseif ret == Command_Plugin_Back || (ret == -1 && XFL_MessageMod_Back == 1)
+		; 			If page == 0
+		; 				XFL_TriggerMenu(akForm, previousState, GetParentState(previousState)) ; Third level menu, need parent of parent
+		; 				ret = Command_Plugin_Exit ; Discontinue menu loop
+		; 			Else
+		; 				page -= 1
+						
+		; 				If page == 0 && previousState == "" ; We're returning to the first page of the menu, but we had no previous menu
+		; 					XFL_MessageMod_Back = 0
+		; 				EndIf
+		; 			EndIf
+		; 		Elseif ret == Command_Plugin_Next
+		; 			XFL_MessageMod_Back = 1 ; We have previous pages
+		; 			page += 1
+		; 		Elseif ret == Command_Plugin_Exit || (ret == -1 && XFL_MessageMod_Back == 0)
+		; 			ret = Command_Plugin_Exit ; Discontinue menu loop
+		; 			OnFinishMenu()
+		; 		EndIf
+		; 	Endif
+		; EndWhile
 		
 		deactivateMenu()
 	EndFunction

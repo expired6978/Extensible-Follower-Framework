@@ -6,7 +6,10 @@ Form[] Property BipedObjects Auto
 Actor Property Player Auto
 Form Property EmptySlot Auto
 
-int lastMaximum = 0
+Event OnLoad()
+	;Debug.Trace("Loading equipment...")
+	LoadEquipment()
+EndEvent
 
 Event OnCellLoad()
 	;Debug.Trace("Loading equipment...")

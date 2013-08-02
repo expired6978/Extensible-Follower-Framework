@@ -22,25 +22,8 @@ Event OnActionEvent(int akCmd, Form akForm1 = None, Form akForm2 = None, int aiV
 EndEvent
 
 Function activateMenu(int page, Form akForm) ; Re-implement
-	;Game.FadeOutGame(true, true, 0, 2.5)
-	;Utility.Wait(1)
 	FollowerMenu.OnFinishMenu()
 	XFLMain.XFL_SendActionEvent(GetIdentifier(), 0, akForm)
-	;Debug.MessageBox("$$loadMovie=statssheetmenu$$")
-	;XFLMain.XFL_OpenSelectionMenu()
-	;int ret = FollowerMenu.XFL_OpenFollowerMenu(follower)
-	;FollowerMenu.OnExtendedMenu(ret, follower)
-	;Game.ShowLimitedRaceMenu()
-	;Book myBook = Game.GetFormFromFile(0x1AD14, "Skyrim.esm") as Book
-	;Debug.Trace("Read: " + myBook.IsRead())
-
-	;RegisterForSingleUpdate(1)
-	;XFLMain.XFL_OpenMagicMenu(follower)
-	;follower.SetEyeTexture(Game.GetFormFromFile(0x81533, "Sierra.esp") as TextureSet)
-	;XFLMain.XFL_OpenSelectionMenu()
-
-	;DLC1VampireTurnScript vampireScript = (Game.GetFormFromFile(0x588C, "Dawnguard.esm") as DLC1VampireTurnScript)
-	;vampireScript.NPCTransformIntoVampireLord(follower, true, false)
 EndFunction
 
 Function ToggleActor(Actor follower)
@@ -70,3 +53,15 @@ Function activateGroupMenu(int page, Form akForm) ; Re-implement
 	FollowerMenu.OnFinishMenu()
 	XFLMain.XFL_SendActionEvent(GetIdentifier(), 0, None)
 EndFunction
+
+; New menu system info
+string[] Function GetMenuEntries(Form akForm)
+	string[] entries = new string[3]
+	int itemOffset = GetIdentifier() * 100
+	entries[0] = GetPluginName() + ";;" + -1 + ";;" + (itemOffset + 0) + ";;" + (itemOffset + 0) + ";;0"
+	return entries
+EndFunction
+
+Event OnMenuEntryTriggered(Form akForm, int itemId, int callback)
+	XFLMain.XFL_SendActionEvent(GetIdentifier(), 0, akForm)
+EndEvent

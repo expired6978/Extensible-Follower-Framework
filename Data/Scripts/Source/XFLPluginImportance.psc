@@ -142,3 +142,18 @@ State MenuImportance_Classic
 	EndFunction
 EndState
 
+
+; New menu system info
+string[] Function GetMenuEntries(Form akForm)
+	string[] entries = new string[4]
+	int itemOffset = GetIdentifier() * 100
+	entries[0] = GetPluginName() + ";;" + -1 + ";;" + GetIdentifier() + ";;" + 0 + ";;1"
+	entries[1] = "$Default" + ";;" + GetIdentifier() + ";;" + (itemOffset + 0) + ";;" + 0 + ";;0"
+	entries[2] = "$Protected" + ";;" + GetIdentifier() + ";;" + (itemOffset + 1) + ";;" + 1 + ";;0"
+	entries[3] = "$Essential" + ";;" + GetIdentifier() + ";;" + (itemOffset + 2) + ";;" + 2 + ";;0"
+	return entries
+EndFunction
+
+Event OnMenuEntryTriggered(Form akForm, int itemId, int callback)
+	XFLMain.XFL_SendActionEvent(GetIdentifier(), callback, akForm)
+EndEvent

@@ -146,3 +146,30 @@ Function AbsorbEffect(Actor teacher, Actor student)
 	NPCDragonDeathSequenceWind.play(teacher) 
 	NPCDragonDeathSequenceExplosion.play(teacher) 
 EndFunction
+
+; New menu system info
+string[] Function GetMenuEntries(Form akForm)
+	string[] entries = new string[7]
+	int itemOffset = GetIdentifier() * 100
+	entries[0] = GetPluginName() + ";;" + -1 + ";;" + GetIdentifier() + ";;" + 0 + ";;1"
+	entries[1] = "$Teach" + ";;" + GetIdentifier() + ";;" + (itemOffset + 0) + ";;" + 0 + ";;1"
+	entries[2] = "$Left Hand" + ";;" + (itemOffset + 0) + ";;" + (itemOffset + 10) + ";;" + 0 + ";;0"
+	entries[3] = "$Right Hand" + ";;" + (itemOffset + 0) + ";;" + (itemOffset + 11) + ";;" + 1 + ";;0"
+
+	entries[4] = "$Forget" + ";;" + GetIdentifier() + ";;" + (itemOffset + 1) + ";;" + 0 + ";;1"
+	entries[5] = "$Left Hand" + ";;" + (itemOffset + 1) + ";;" + (itemOffset + 20) + ";;" + 0 + ";;0"
+	entries[6] = "$Right Hand" + ";;" + (itemOffset + 1) + ";;" + (itemOffset + 21) + ";;" + 1 + ";;0"
+
+	return entries
+EndFunction
+
+Event OnMenuEntryTriggered(Form akForm, int itemId, int callback)
+	int category = itemId - GetIdentifier() * 100
+	int subCategory = category / 10
+	if subCategory == 1
+		isForget = false
+	Elseif subCategory == 2
+		isForget = true
+	Endif
+	XFLMain.XFL_SendActionEvent(GetIdentifier(), isForget as Int, Game.GetPlayer(), akForm, callback)
+EndEvent

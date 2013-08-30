@@ -4,12 +4,13 @@ XFLScript Property XFLMain Auto
 
 Event OnUpdateGameTime()
 	;kill the update if the follower isn't waiting anymore
-	If (Self.GetReference() as Actor).GetAv("WaitingforPlayer") == 0
+	Actor actorRefr = Self.GetReference() as Actor
+	If actorRefr.GetAv("WaitingforPlayer") == 0
 		UnRegisterForUpdateGameTime()
 	Else
 ; 		debug.trace(self + "Dismissing the follower because he is waiting and 3 days have passed.")\
 		If XFLMain.XFL_Config_IgnoreTimeout.GetValueInt() == 0 ; Ignore 3 day dismiss timeout disabled
-			XFLMain.XFL_RemoveFollower(Self.GetReference() as Actor, 5)
+			XFLMain.XFL_RemoveFollower(actorRefr, 5)
 		EndIf
 		UnRegisterForUpdateGameTime()
 	EndIf	
@@ -17,19 +18,21 @@ EndEvent
 
 Event OnUnload()
 	;if follower unloads while waiting for the player, wait three days then dismiss him.
-	If (Self.GetReference() as Actor).GetAv("WaitingforPlayer") == 1
-		XFLMain.XFL_SetWait(Self.GetReference() as Actor)
+	Actor actorRefr = Self.GetReference() as Actor
+	If actorRefr.GetAv("WaitingforPlayer") == 1
+		XFLMain.XFL_SetWait(actorRefr)
 	EndIf
 EndEvent
 
 Event OnCombatStateChanged(Actor akTarget, int aeCombatState)
 
 	If aeCombatState == 1
+		Actor actorRefr = Self.GetReference() as Actor
 		If (akTarget == Game.GetPlayer())
-			XFLMain.XFL_RemoveFollower((Self.GetReference() as Actor), 0, 0)
+			XFLMain.XFL_RemoveFollower(actorRefr, 0, 0)
 		Else
 			If akTarget && akTarget.IsInFaction(XFLMain.XFL_FollowerFaction) ; Entering combat with another follower, stop this rubbish!
-				(Self.GetReference() as Actor).StopCombatAlarm()
+				actorRefr.StopCombatAlarm()
 			EndIf
 		EndIf
 	EndIf

@@ -14,6 +14,7 @@ ReferenceAlias[] Property XFL_FollowerMenuAliases Auto
 
 Perk Property CommandFollower Auto
 Actor Property XFL_Player Auto
+Actor Property XFL_PreviousActor Auto
 Spell Property XFL_SlowTime Auto
 
 ReferenceAlias Property XFL_Placeholder Auto
@@ -89,6 +90,8 @@ string Property STRING_COMMAND_STATS = "$Stats" AutoReadOnly
 string Property STRING_COMMAND_NEXT = "$Next" AutoReadOnly
 string Property STRING_COMMAND_MORE = "$More" AutoReadOnly
 string Property STRING_COMMAND_BACK = "$Back" AutoReadOnly
+string Property STRING_COMMAND_INVENTORY = "$Inventory" AutoReadOnly
+string Property STRING_COMMAND_MAGIC = "$Magic" AutoReadOnly
 
 string branchState = ""
 
@@ -428,6 +431,8 @@ endFunction
 string Function GetParentState(string menuState = "")
 	If menuState == GetMenuState("PluginMenu")
 		return branchState
+	Elseif menuState == GetMenuState("TradeMenu")
+		return GetMenuState("CommandMenu")
 	Elseif menuState == GetMenuState("StatsMenu")
 		return GetMenuState("CommandMenu")
 	Elseif menuState == GetMenuState("FollowerMenu")
@@ -449,8 +454,12 @@ State FollowerMenu_Classic
 		Int Command_Exit = 3
 
 		Actor followerActor = akForm as Actor
-					
-		XFL_Placeholder.ForceRefTo(followerActor)
+		
+		If followerActor
+			XFL_Placeholder.ForceRefTo(followerActor)
+		Else
+			XFL_Placeholder.Clear()
+		EndIf
 
 		If followerActor
 			XFL_MessageMod_Command = 1 ; Show Command
@@ -487,34 +496,52 @@ EndState
 
 State FollowerMenu_Standard
 	Function activateMenu(Form akForm = None, string previousState = "", int page = 0)
-		Int Command_Group = 1
-		Int Command_Command = 5
-		Int Command_Talk = 2
-		Int Command_Exit = 6
+		Int Command_Group = 0
+		Int Command_Command = 1
+		Int Command_Talk = 3
+		Int Command_Inventory = 4
+		Int Command_Magic = 5
+		Int Command_Exit = 7
 
 		Actor followerActor = akForm as Actor
-
 		UIMenuBase wheelMenu = XFL_GetStandardMenu("UIWheelMenu")
 		if wheelMenu
 			wheelMenu.SetPropertyIndexString("optionText", Command_Group, STRING_COMMAND_GROUP)
 			wheelMenu.SetPropertyIndexString("optionText", Command_Command, STRING_COMMAND_COMMAND)
 			wheelMenu.SetPropertyIndexString("optionText", Command_Talk, STRING_COMMAND_TALK)
+			wheelMenu.SetPropertyIndexString("optionText", Command_Inventory, STRING_COMMAND_INVENTORY)
+			wheelMenu.SetPropertyIndexString("optionText", Command_Magic, STRING_COMMAND_MAGIC)
 			wheelMenu.SetPropertyIndexString("optionText", Command_Exit, STRING_COMMAND_EXIT)
 			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Group, STRING_COMMAND_GROUP)
 			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Command, STRING_COMMAND_COMMAND)
 			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Talk, STRING_COMMAND_TALK)
+			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Inventory, STRING_COMMAND_INVENTORY)
+			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Magic, STRING_COMMAND_MAGIC)
 			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Exit, STRING_COMMAND_EXIT)
 			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Group, true)
 			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Command, true)
 			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Talk, true)
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Inventory, true)
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Magic, true)
 			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Exit, true)
 			int ret = wheelMenu.OpenMenu(akForm)
 			If ret == Command_Group
-				XFL_TriggerMenu(XFLMain.XFL_FollowerList, GetMenuState("CommandMenu"), "")
+				XFL_PreviousActor = followerActor
+				XFL_TriggerMenu(XFLMain.XFL_FollowerList, GetMenuState("CommandMenu"), GetState())
 			Elseif ret == Command_Command
 				XFL_TriggerMenu(akForm, GetMenuState("CommandMenu"), GetState())
 			Elseif ret == Command_Talk
 				followerActor.Activate(Game.GetPlayer(), true)
+				OnFinishMenu()
+			Elseif ret == Command_Inventory
+				followerActor.OpenInventory()
+				OnFinishMenu()
+			Elseif ret == Command_Magic
+				UIMenuBase magicMenu = XFL_GetStandardMenu("UIMagicMenu")
+				if magicMenu
+					magicMenu.SetPropertyForm("receivingActor", Game.GetPlayer())
+					magicMenu.OpenMenu(followerActor)
+				Endif
 				OnFinishMenu()
 			Elseif ret == Command_Exit || ret == -1
 				OnFinishMenu()
@@ -541,8 +568,11 @@ State CommandMenu_Classic
 		Int Command_Exit = 8
 
 		Actor followerActor = akForm as Actor
-			
-		XFL_Placeholder.ForceRefTo(followerActor)
+		If followerActor
+			XFL_Placeholder.ForceRefTo(followerActor)
+		Else
+			XFL_Placeholder.Clear()
+		Endif
 		
 		branchState = GetState()
 
@@ -600,7 +630,9 @@ State CommandMenu_Classic
 			XFLMain.XFL_SetSandbox(followerActor)
 			OnFinishMenu()
 		Elseif ret == Command_Trade ; Trade
-			followerActor.OpenInventory()
+			If followerActor
+				followerActor.OpenInventory()
+			Endif
 			OnFinishMenu()
 		Elseif ret == Command_Stats ; Stats
 			XFL_TriggerMenu(followerActor, GetMenuState("StatsMenu"), GetState())
@@ -642,7 +674,8 @@ State CommandMenu_Standard
 		Int Command_Wait = -1
 
 		Actor followerActor = akForm as Actor
-		if !followerActor
+		FormList actorList = akForm as FormList
+		if actorList
 			Command_Follow = 0
 			Command_Wait = 1
 			Command_Dismiss = 2
@@ -652,9 +685,10 @@ State CommandMenu_Standard
 			Command_WaitFollow = -1
 			Command_Trade = -1
 		Endif
+		
 
 		XFL_MessageMod_Back = 0
-		If previousState != "" && followerActor ; Back button only available when theres a single actor
+		If previousState != "" && (followerActor || XFL_PreviousActor) ; Back button only available when theres a single actor
 			XFL_MessageMod_Back = 1
 		Endif
 
@@ -692,7 +726,7 @@ State CommandMenu_Standard
 
 			float waiting = -1
 			If followerActor
-				followerActor.GetActorValue("WaitingForPlayer")
+				waiting = followerActor.GetActorValue("WaitingForPlayer")
 				If waiting == 0 ; Not waiting for player
 					wheelMenu.SetPropertyIndexString("optionText", Command_WaitFollow, STRING_COMMAND_WAIT)
 					wheelMenu.SetPropertyIndexString("optionLabelText", Command_WaitFollow, STRING_COMMAND_WAIT)
@@ -730,8 +764,9 @@ State CommandMenu_Standard
 					XFLMain.XFL_SetSandbox(followerActor)
 					OnFinishMenu()
 				Elseif ret == Command_Trade
-					followerActor.OpenInventory()
-					OnFinishMenu()
+					;followerActor.OpenInventory()
+					;OnFinishMenu()
+					XFL_TriggerMenu(akForm, GetMenuState("TradeMenu"), GetState())
 				Elseif ret == Command_Stats
 					UIMenuBase statsMenu = XFL_GetStandardMenu("UIStatsMenu")
 					if statsMenu
@@ -745,7 +780,7 @@ State CommandMenu_Standard
 				Elseif ret == Command_Exit || (ret == -1 && XFL_MessageMod_Back == 0)
 					OnFinishMenu()
 				Endif
-			Else
+			Elseif actorList
 				If ret == Command_Wait
 					XFLMain.XFL_WaitList(akForm)
 					OnFinishMenu()
@@ -767,10 +802,83 @@ State CommandMenu_Standard
 				Elseif ret == Command_More
 					XFL_TriggerMenu(akForm, GetMenuState("PluginMenu"), GetState())
 				Elseif ret == Command_Back || (ret == -1 && XFL_MessageMod_Back == 1)
+					XFL_TriggerMenu(XFL_PreviousActor, previousState)
+				Elseif ret == Command_Exit || (ret == -1 && XFL_MessageMod_Back == 0)
+					OnFinishMenu()
+				Endif
+			Elseif akForm == None
+				Debug.Trace("EFF WARNING: activateMenu null reference form detected in standard mode.")
+			Endif
+		Endif
+		deactivateMenu()
+	EndFunction
+	
+	Function deactivateMenu()		
+		GoToState("")
+	EndFunction
+EndState
+
+State TradeMenu_Standard
+	Function activateMenu(Form akForm = None, string previousState = "", int page = 0)
+		Int Command_Inventory = 1
+		Int Command_Magic = 2
+		Int Command_Back = 6
+		Int Command_Exit = 7
+
+		Actor followerActor = akForm as Actor
+		FormList actorList = akForm as FormList
+		if actorList ; Somehow we got to this menu as a group?
+			XFL_TriggerMenu(akForm, GetState(), previousState)
+			deactivateMenu()
+			return
+		Endif
+		
+		XFL_MessageMod_Back = 0
+		If previousState != "" && (followerActor || XFL_PreviousActor) ; Back button only available when theres a single actor
+			XFL_MessageMod_Back = 1
+		Endif
+
+		UIMenuBase wheelMenu = XFL_GetStandardMenu("UIWheelMenu")
+		if wheelMenu
+			wheelMenu.SetPropertyInt("lastIndex", Command_Inventory)
+			wheelMenu.SetPropertyIndexString("optionText", Command_Inventory, STRING_COMMAND_INVENTORY)
+			wheelMenu.SetPropertyIndexString("optionText", Command_Magic, STRING_COMMAND_MAGIC)
+			wheelMenu.SetPropertyIndexString("optionText", Command_Back, STRING_COMMAND_BACK)
+			wheelMenu.SetPropertyIndexString("optionText", Command_Exit, STRING_COMMAND_EXIT)
+			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Inventory, STRING_COMMAND_INVENTORY)
+			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Magic, STRING_COMMAND_MAGIC)
+			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Back, STRING_COMMAND_BACK)
+			wheelMenu.SetPropertyIndexString("optionLabelText", Command_Exit, STRING_COMMAND_EXIT)
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Inventory, true)
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Magic, true)
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Back, false)
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Exit, true)
+			wheelMenu.SetPropertyIndexInt("optionTextColor", Command_Back, 0x777777)
+			
+			If XFL_MessageMod_Back == 1 ; Back button only available when theres a single actor
+				wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Back, true)
+				wheelMenu.SetPropertyIndexInt("optionTextColor", Command_Back, 0xFFFFFF)
+			EndIf
+
+			int ret = wheelMenu.OpenMenu(akForm)
+			if followerActor
+				If ret == Command_Inventory
+					followerActor.OpenInventory()
+					OnFinishMenu()
+				Elseif ret == Command_Magic
+					UIMenuBase magicMenu = XFL_GetStandardMenu("UIMagicMenu")
+					if magicMenu
+						magicMenu.SetPropertyForm("receivingActor", Game.GetPlayer())
+						magicMenu.OpenMenu(followerActor)
+					Endif
+					OnFinishMenu()
+				Elseif ret == Command_Back || (ret == -1 && XFL_MessageMod_Back == 1)
 					XFL_TriggerMenu(akForm, previousState)
 				Elseif ret == Command_Exit || (ret == -1 && XFL_MessageMod_Back == 0)
 					OnFinishMenu()
 				Endif
+			Elseif akForm == None
+				Debug.Trace("EFF WARNING: activateMenu null reference form detected in standard mode.")
 			Endif
 		Endif
 		deactivateMenu()
@@ -855,10 +963,13 @@ State StatsMenu_Classic
 		Int Command_Stats_Magic = 4
 		Int Command_Stats_Back = 5
 		Int Command_Stats_Exit = 6
-		
-		XFL_Placeholder.ForceRefTo(followerActor)
 
 		Actor followerActor = akForm as Actor
+		If followerActor
+			XFL_Placeholder.ForceRefTo(followerActor)
+		Else
+			XFL_Placeholder.Clear()
+		Endif
 		
 		If previousState != ""
 			XFL_MessageMod_Back = 1
@@ -949,8 +1060,6 @@ State PluginMenu_Standard
 		Else
 			XFL_MessageMod_Back = 0
 		EndIf
-
-		Actor followerActor = akForm as Actor
 		
 		bool isGroup = (previousState == GetMenuState("GroupMenu"))
 		UIListMenu listMenu = UIExtensions.GetMenu("UIListMenu") as UIListMenu
@@ -985,6 +1094,8 @@ State PluginMenu_Standard
 			Else
 				XFL_TriggerMenu(akForm, previousState, GetParentState(previousState)) ; Third level menu, need parent of parent
 			Endif
+		Else
+			Debug.Trace("EFF ERROR: Failed to retrieve UIListMenu.")
 		Endif
 		; Int[] pluginIndexes = new Int[5] ; Store which Plugin Index corresponds to which Menu index
 		; int pageEnum = pluginIndexes.Length

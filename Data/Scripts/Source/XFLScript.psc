@@ -18,7 +18,12 @@ Message Property XFL_FollowerDeathMessage Auto
 FormList Property XFL_FollowerPlugins Auto
 FormList Property XFL_FollowerList  Auto  
 
+Activator Property XFL_PortalEffect Auto
 Spell Property XFL_Portal Auto
+
+Spell Property XFL_FollowerTelepathy Auto
+Spell Property XFL_FollowerTeleportation Auto
+Spell Property XFL_FollowerFocusTarget Auto
 
 XFLOutfit Property XFL_OutfitController Auto
 XFLPanel Property XFL_Panel Auto
@@ -87,6 +92,16 @@ Function XFL_RegisterExtensions()
 		Debug.Trace("EFF WARNING: Actor panel disabled, plugin failed to loaded.")
 		APNLExtended = false
 		XFL_Panel = None
+	Endif
+	Actor thePlayer = Game.GetPlayer()
+	If !thePlayer.HasSpell(XFL_FollowerTelepathy)
+		thePlayer.AddSpell(XFL_FollowerTelepathy)
+	Endif
+	If !thePlayer.HasSpell(XFL_FollowerTeleportation)
+		thePlayer.AddSpell(XFL_FollowerTeleportation)
+	Endif
+	If !thePlayer.HasSpell(XFL_FollowerFocusTarget)
+		thePlayer.AddSpell(XFL_FollowerFocusTarget)
 	Endif
 EndFunction
 
@@ -494,6 +509,8 @@ Function XFL_ForceClearAll()
 		i += 1
 	EndWhile
 
+	XFL_FollowerList.Revert() ; Forcefully clear out the list
+
 	XFL_OutfitController.XFL_ForceClearAll()
 	
 	; These need to be updated frequently to avoid some weird multithreading glitches
@@ -803,12 +820,12 @@ Function XFL_Teleport(Actor akTarget, Form akRef)
 			int i = 0
 			While i < akFormList.GetSize()
 				akActor = (akFormList.GetAt(i) as Actor)
-				XFL_Portal.Cast(akActor, akTarget)
+				XFL_WarpActor(akActor, akTarget)
 				i += 1
 			EndWhile
 		Else
 			akActor = (akRef as Actor)
-			XFL_Portal.Cast(akActor, akTarget)
+			XFL_WarpActor(akActor, akTarget)
 		Endif
 	Else
 		int i = 0
@@ -816,10 +833,21 @@ Function XFL_Teleport(Actor akTarget, Form akRef)
 		While i <= limit
 			If XFL_FollowerAliases[i] && XFL_FollowerAliases[i].GetReference() != None
 				akActor = XFL_FollowerAliases[i].GetReference() as Actor
-				XFL_Portal.Cast(akActor, akTarget)
+				XFL_WarpActor(akActor, akTarget)
 			EndIf
 			i += 1
 		EndWhile
 	Endif
 EndFunction
 
+Function XFL_WarpActor(Actor akActor, Actor dest)
+	If akActor.GetCurrentLocation().IsLoaded() && akActor.Is3DLoaded()
+		XFL_Portal.Cast(akActor, dest)
+	Else
+		akActor.DisableNoWait(true)
+		akActor.MoveTo(dest, Utility.RandomFloat(-50.0, 50.0), Utility.RandomFloat(-50.0, 50.0))
+		akActor.PlaceAtMe(XFL_PortalEffect)
+		Utility.Wait(0.5)
+		akActor.EnableNoWait(false)
+	Endif
+EndFunction

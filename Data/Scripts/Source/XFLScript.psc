@@ -103,6 +103,9 @@ Function XFL_RegisterExtensions()
 	If !thePlayer.HasSpell(XFL_FollowerFocusTarget)
 		thePlayer.AddSpell(XFL_FollowerFocusTarget)
 	Endif
+	If SKSEExtended ; Refresh Package Stack when sneaking
+		RegisterForControl("Sneak")
+	Endif
 EndFunction
 
 Function XFL_RegisterPlugin(Quest questRef)
@@ -112,6 +115,13 @@ Function XFL_RegisterPlugin(Quest questRef)
 		EndIf
 	EndIf
 EndFunction
+
+Event OnControlDown(string control)
+	If control == "Sneak"
+		bool isPlayerSneaking = Game.GetPlayer().IsSneaking()
+		XFL_SneakAll(isPlayerSneaking, isPlayerSneaking)
+	Endif
+EndEvent
 
 Function XFL_SetWait(Actor FollowerActor)
 	If XFL_isDefault(FollowerActor) ; Follower is still in the vanilla system, use fallback commands
@@ -274,6 +284,7 @@ Function XFL_RemoveDeadFollower(Actor follower)
 		follower.RemoveFromFaction(XFL_FollowerFaction)
 		follower.RemoveFromFaction(FollowerScript.pCurrentHireling)
 		XFL_FollowerList.RemoveAddedForm(follower)
+		SetObjectiveDisplayed(100 + i, false)
 
 		If APNLExtended
 			XFL_Panel.RemoveActors(follower)
@@ -503,6 +514,7 @@ Function XFL_ForceClearAll()
 				follower.SetActorValue("FavorActive", -1)
 				XFL_FollowerList.RemoveAddedForm(follower)
 				XFL_FollowerAliases[i].Clear() ; Clear all reference aliases
+				SetObjectiveDisplayed(100 + i, false)
 			Endif
 			recruitTimes[i] = 0
 		EndIf
@@ -646,6 +658,40 @@ Function XFL_EvaluateAll()
 	While i <= limit
 		If XFL_FollowerAliases[i] && XFL_FollowerAliases[i].GetReference() != None
 			(XFL_FollowerAliases[i].GetReference() as Actor).EvaluatePackage()
+		EndIf
+		i += 1
+	EndWhile
+EndFunction
+
+; Command: Sneak All
+Function XFL_SneakAll(bool addMuffle = false, bool addLightFoot = false)
+	Perk mufflePerk = Game.GetFormFromFile(0x58213, "Skyrim.esm") as Perk
+	Perk lightfPerk = Game.GetFormFromFile(0x5820C, "Skyrim.esm") as Perk
+
+	int i = 0
+	int limit = XFL_GetMaximum()
+	While i <= limit
+		If XFL_FollowerAliases[i] && XFL_FollowerAliases[i].GetReference() != None
+			Actor akActor = (XFL_FollowerAliases[i].GetReference() as Actor)
+			If addMuffle
+				If !akActor.HasPerk(mufflePerk)
+					akActor.AddPerk(mufflePerk)
+				Endif
+			Else
+				If akActor.HasPerk(mufflePerk)
+					akActor.RemovePerk(mufflePerk)
+				Endif
+			EndIf
+			If addLightFoot
+				If !akActor.HasPerk(lightfPerk)
+					akActor.AddPerk(lightfPerk)
+				Endif
+			Else
+				If akActor.HasPerk(lightfPerk)
+					akActor.RemovePerk(lightfPerk)
+				Endif
+			EndIf
+			akActor.EvaluatePackage()
 		EndIf
 		i += 1
 	EndWhile

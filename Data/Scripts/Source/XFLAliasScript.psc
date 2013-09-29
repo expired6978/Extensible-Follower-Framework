@@ -28,11 +28,14 @@ Event OnCombatStateChanged(Actor akTarget, int aeCombatState)
 
 	If aeCombatState == 1
 		Actor actorRefr = Self.GetReference() as Actor
-		If (akTarget == Game.GetPlayer())
+		If (akTarget == Game.GetPlayer()) ; We pissed off our follower guess we aren't friends anymore
 			XFLMain.XFL_RemoveFollower(actorRefr, 0, 0)
 		Else
-			If akTarget && akTarget.IsInFaction(XFLMain.XFL_FollowerFaction) ; Entering combat with another follower, stop this rubbish!
+			If akTarget && akTarget.IsInFaction(XFLMain.XFL_FollowerFaction) || akTarget.IsPlayerTeammate() ; Entering combat with another teammate, stop this rubbish!
 				actorRefr.StopCombatAlarm()
+				akTarget.StopCombatAlarm()
+				actorRefr.SetRelationshipRank(akTarget, 3) ; I'm sorry lets be friend again :(
+				akTarget.SetRelationshipRank(actorRefr, 3) ; Yeah ok
 			EndIf
 		EndIf
 	EndIf

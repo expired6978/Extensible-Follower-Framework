@@ -30,7 +30,12 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 			Endif
 		Endif
 	Endif
-	If selected ; Single follower selected
+	If selected 
+		if (selected as FormList)
+			XFLMenu.XFL_PreviousActor = (selected as FormList).GetAt(0) as Actor
+		else
+			XFLMenu.XFL_PreviousActor = selected as Actor
+		Endif
 		XFLMenu.XFL_TriggerMenu(selected, XFLMenu.GetMenuState("CommandMenu"))
 	Else
 		XFLMenu.OnFinishMenu()

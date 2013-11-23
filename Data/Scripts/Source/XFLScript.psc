@@ -47,6 +47,7 @@ bool Property SKSEExtended Auto ; SKSE Loaded
 bool Property DLC1Extended Auto ; DLC1 Dawnguard Loaded
 bool Property MENUExtended Auto ; Menu System Loaded
 bool Property APNLExtended Auto ; Actor Panel Loaded
+bool Property SKSEEvents Auto ; SKSE Event Callbacks available
 
 Event OnInit()
 	XFL_RegisterExtensions()
@@ -63,6 +64,34 @@ Function XFL_RegisterExtensions()
 		SKSEExtended = false
 		XFLMenu.XFL_Config_UseClassicMenus.value = 1
 	Endif
+
+	If SKSE.GetVersionRelease() >= 44 ; 45
+		Debug.Trace("EFF Notification: SKSE Callback functions Loaded.")
+		; Register all system actions
+		RegisterForModEvent("XFL_System_ActionEvent", "XFL_SendActionEvent")
+		RegisterForModEvent("XFL_System_AddFollower", "XFL_AddFollower")
+		RegisterForModEvent("XFL_System_Wait", "XFL_SetWait")
+		RegisterForModEvent("XFL_System_Sandbox", "XFL_SetSandbox")
+		RegisterForModEvent("XFL_System_Follow", "XFL_SetFollow")
+		RegisterForModEvent("XFL_System_Dismiss", "XFL_RemoveFollower")
+
+		RegisterForModEvent("XFL_System_WaitAll", "XFL_WaitAll")
+		RegisterForModEvent("XFL_System_FollowAll", "XFL_FollowAll")
+		RegisterForModEvent("XFL_System_SandboxAll", "XFL_SandboxAll")
+		RegisterForModEvent("XFL_System_RemoveAll", "XFL_RemoveAll")
+		RegisterForModEvent("XFL_System_EvaluateAll", "XFL_EvaluateAll")
+		RegisterForModEvent("XFL_System_SneakAll", "XFL_SneakAll")
+
+		RegisterForModEvent("XFL_System_WaitList", "XFL_WaitList")
+		RegisterForModEvent("XFL_System_FollowList", "XFL_FollowList")
+		RegisterForModEvent("XFL_System_SandboxList", "XFL_SandboxList")
+		RegisterForModEvent("XFL_System_RemoveList", "XFL_RemoveList")
+		SKSEEvents = true
+	Else
+		Debug.Trace("EFF ERROR: SKSE version too old for event based triggers, some features will be unavailable.")
+		SKSEEvents = false
+	Endif
+
 	; Check for DLC1
 	bool DLC1Check = (Game.GetFormFromFile(0x588C, "Dawnguard.esm") != None) ; Checks for DLC1VampireTurnScript Quest
 	If DLC1Check
@@ -123,7 +152,13 @@ Event OnControlDown(string control)
 	Endif
 EndEvent
 
-Function XFL_SetWait(Actor FollowerActor)
+Function XFL_SetWait(Form follower)
+	Actor FollowerActor = follower as Actor
+	If !FollowerActor
+		Debug.Trace("EFF ERROR: SetWait bad input form")
+		return
+	Endif
+
 	If XFL_isDefault(FollowerActor) ; Follower is still in the vanilla system, use fallback commands
 		FollowerScript.FollowerWait()
 		return
@@ -138,10 +173,16 @@ Function XFL_SetWait(Actor FollowerActor)
 	SetObjectiveDisplayed(100 + index, true)
 	
 	XFL_OutfitController.XFL_AddPersistentRef(FollowerActor) ; Add outfit persistence
-	XFL_SendPluginEvent(PLUGIN_EVENT_WAIT, FollowerActor)
+	XFL_SendSystemEvent(PLUGIN_EVENT_WAIT, FollowerActor)
 EndFunction
 
-Function XFL_SetSandbox(Actor FollowerActor)
+Function XFL_SetSandbox(Form follower)
+	Actor FollowerActor = follower as Actor
+	If !FollowerActor
+		Debug.Trace("EFF ERROR: SetSandbox bad input form")
+		return
+	Endif
+
 	If XFL_isDefault(FollowerActor) ; Follower is still in the vanilla system, use fallback commands
 		FollowerScript.FollowerWait()
 		return
@@ -152,10 +193,16 @@ Function XFL_SetSandbox(Actor FollowerActor)
 	SetObjectiveDisplayed(100 + XFL_GetIndex(FollowerActor), true)
 	
 	XFL_OutfitController.XFL_AddPersistentRef(FollowerActor) ; Add outfit persistence
-	XFL_SendPluginEvent(PLUGIN_EVENT_SANDBOX, FollowerActor)
+	XFL_SendSystemEvent(PLUGIN_EVENT_SANDBOX, FollowerActor)
 EndFunction
 
-Function XFL_SetFollow(Actor FollowerActor)
+Function XFL_SetFollow(Form follower)
+	Actor FollowerActor = follower as Actor
+	If !FollowerActor
+		Debug.Trace("EFF ERROR: SetFollow bad input form")
+		return
+	Endif
+
 	If XFL_isDefault(FollowerActor) ; Follower is still in the vanilla system, use fallback commands
 		FollowerScript.FollowerFollow()
 		return
@@ -166,12 +213,17 @@ Function XFL_SetFollow(Actor FollowerActor)
 	SetObjectiveDisplayed(100 + XFL_GetIndex(FollowerActor), false)
 
 	XFL_OutfitController.XFL_RemovePersistentRef(FollowerActor) ; Remove outfit persistence, we don't need it as long as they are with us
-	XFL_SendPluginEvent(PLUGIN_EVENT_FOLLOW, FollowerActor)
+	XFL_SendSystemEvent(PLUGIN_EVENT_FOLLOW, FollowerActor)
 EndFunction
 
-Function XFL_AddFollower(Actor FollowerActor)
+Function XFL_AddFollower(Form follower)
+	Actor FollowerActor = follower as Actor
+	If !FollowerActor
+		Debug.Trace("EFF ERROR: AddFollower bad input form")
+		return
+	Endif
 	If !XFL_isRunning() ; Default to vanilla system, something went wrong
-		Debug.Trace("EFF WARNING: Scripts running with no plugin active!")
+		Debug.Trace("EFF ERROR: Scripts running with no plugin active!")
 		FollowerScript.SetFollower(FollowerActor)
 		return
 	Endif
@@ -217,15 +269,20 @@ Function XFL_AddFollower(Actor FollowerActor)
 	Endif
 
 	XFL_OutfitController.XFL_RemovePersistentRef(FollowerActor) ; Remove outfit persistence, we don't need it as long as they are with us
-	XFL_SendPluginEvent(PLUGIN_EVENT_ADD_FOLLOWER, FollowerActor)
+	XFL_SendSystemEvent(PLUGIN_EVENT_ADD_FOLLOWER, FollowerActor)
 EndFunction
 
-Function XFL_RemoveFollower(Actor follower, Int iMessage = 0, Int iSayLine = 1)
-	If XFL_isDefault(follower)
+Function XFL_RemoveFollower(Form follower, Int iMessage = 0, Int iSayLine = 1)
+	Actor FollowerActor = follower as Actor
+	If !FollowerActor
+		Debug.Trace("EFF ERROR: RemoveFollower bad input form")
+		return
+	Endif
+	If XFL_isDefault(FollowerActor)
 		FollowerScript.DismissFollower()
 		return
 	EndIf
-	If follower && follower.IsDead() == False
+	If FollowerActor && FollowerActor.IsDead() == False
 		If iMessage == 0
 			FollowerScript.FollowerDismissMessage.Show()
 		ElseIf iMessage == 1
@@ -243,56 +300,61 @@ Function XFL_RemoveFollower(Actor follower, Int iMessage = 0, Int iSayLine = 1)
 			FollowerScript.FollowerDismissMessage.Show()
 		EndIf
 
-		int i = XFL_GetIndex(follower)
-		follower.StopCombatAlarm()
-		follower.AddToFaction(FollowerScript.pDismissedFollower)
-		follower.SetPlayerTeammate(tmRestore[i])
-		follower.IgnoreFriendlyHits(ffRestore[i])
-		follower.RemoveFromFaction(XFL_FollowerFaction)
-		follower.RemoveFromFaction(FollowerScript.pCurrentHireling)
-		follower.SetActorValue("WaitingForPlayer", 0)
+		int i = XFL_GetIndex(FollowerActor)
+		FollowerActor.StopCombatAlarm()
+		FollowerActor.AddToFaction(FollowerScript.pDismissedFollower)
+		FollowerActor.SetPlayerTeammate(tmRestore[i])
+		FollowerActor.IgnoreFriendlyHits(ffRestore[i])
+		FollowerActor.RemoveFromFaction(XFL_FollowerFaction)
+		FollowerActor.RemoveFromFaction(FollowerScript.pCurrentHireling)
+		FollowerActor.SetActorValue("WaitingForPlayer", 0)
 		SetObjectiveDisplayed(100 + i, false)
 		;hireling rehire function
-		FollowerScript.HirelingRehireScript.DismissHireling(follower.GetActorBase())
+		FollowerScript.HirelingRehireScript.DismissHireling(FollowerActor.GetActorBase())
 		
 		If iSayLine == 1
-			follower.Say(DialogueFollowerDismissTopic)
+			FollowerActor.Say(DialogueFollowerDismissTopic)
 		EndIf
 		
-		XFL_OutfitController.XFL_AddPersistentRef(follower) ; Add outfit persistent
-		XFL_FollowerList.RemoveAddedForm(follower)
+		XFL_OutfitController.XFL_AddPersistentRef(FollowerActor) ; Add outfit persistent
+		XFL_FollowerList.RemoveAddedForm(FollowerActor)
 
 		If APNLExtended
-			XFL_Panel.RemoveActors(follower)
+			XFL_Panel.RemoveActors(FollowerActor)
 		Endif
 
-		XFL_SendPluginEvent(PLUGIN_EVENT_REMOVE_FOLLOWER, follower) ; Event should happen before everything is reset
-		XFL_ClearAlias(follower)
+		XFL_SendSystemEvent(PLUGIN_EVENT_REMOVE_FOLLOWER, FollowerActor) ; Event should happen before everything is reset
+		XFL_ClearAlias(FollowerActor)
 	EndIf
 EndFunction
 
 ; Follower died, need to remove them from their alias so they can potentially be non-persistent and cleaned up
-Function XFL_RemoveDeadFollower(Actor follower)
-	If follower
-		If XFL_isDefault(follower)
+Function XFL_RemoveDeadFollower(Form follower)
+	Actor FollowerActor = follower as Actor
+	If !FollowerActor
+		Debug.Trace("EFF ERROR: RemoveDeadFollower bad input form")
+		return
+	Endif
+	If FollowerActor
+		If XFL_isDefault(FollowerActor)
 			return
 		Endif
 		XFL_FollowerDeathMessage.Show()
-		int i = XFL_GetIndex(follower)
-		follower.SetPlayerTeammate(tmRestore[i])
-		follower.IgnoreFriendlyHits(ffRestore[i])
-		follower.RemoveFromFaction(XFL_FollowerFaction)
-		follower.RemoveFromFaction(FollowerScript.pCurrentHireling)
-		XFL_FollowerList.RemoveAddedForm(follower)
+		int i = XFL_GetIndex(FollowerActor)
+		FollowerActor.SetPlayerTeammate(tmRestore[i])
+		FollowerActor.IgnoreFriendlyHits(ffRestore[i])
+		FollowerActor.RemoveFromFaction(XFL_FollowerFaction)
+		FollowerActor.RemoveFromFaction(FollowerScript.pCurrentHireling)
+		XFL_FollowerList.RemoveAddedForm(FollowerActor)
 		SetObjectiveDisplayed(100 + i, false)
 
 		If APNLExtended
-			XFL_Panel.RemoveActors(follower)
+			XFL_Panel.RemoveActors(FollowerActor)
 		Endif
 
-		XFL_OutfitController.XFL_RemovePersistentRef(follower) ; Follower died, remove their persistence
-		XFL_SendPluginEvent(PLUGIN_EVENT_REMOVE_DEAD_FOLLOWER, follower)
-		XFL_ClearAlias(follower)
+		XFL_OutfitController.XFL_RemovePersistentRef(FollowerActor) ; Follower died, remove their persistence
+		XFL_SendSystemEvent(PLUGIN_EVENT_REMOVE_DEAD_FOLLOWER, FollowerActor)
+		XFL_ClearAlias(FollowerActor)
 	EndIf
 EndFunction
 
@@ -307,12 +369,12 @@ Bool Function XFL_isDefault(Actor follower)
 EndFunction
 
 ; Propagate events to all plugins
-Function XFL_SendPluginEvent(int akType, ObjectReference akRef1 = None, ObjectReference akRef2 = None, int aiValue1 = 0, int aiValue2 = 0)
+Function XFL_SendPluginEvent(int akType, Form akRef1 = None, Form akRef2 = None, int aiValue1 = 0, int aiValue2 = 0)
 	int i = 0
 	While i < XFL_FollowerPlugins.GetSize()
 		XFLPlugin plugin = (XFL_FollowerPlugins.GetAt(i) As XFLPlugin)
 		if plugin
-			plugin.OnPluginEvent(akType, akRef1, akRef2, aiValue1, aiValue2)
+			plugin.OnPluginEvent(akType, akRef1 as ObjectReference, akRef2 as ObjectReference, aiValue1, aiValue2)
 		Else
 			Debug.Trace("Plugin: " + XFL_FollowerPlugins.GetAt(i) + " event failure at index: " + i + " type: " + akType)
 		endif
@@ -492,11 +554,11 @@ EndFunction
 ; Forcefully clears all statuses and fires the clearall event
 Function XFL_ForceClearAll()
 	If !XFL_isRunning() ; Default to vanilla system if plugin is not loaded
-		Debug.Trace("EFF WARNING: Scripts running with no plugin active!")
+		Debug.Trace("EFF ERROR: Scripts running with no plugin active!")
 		return
 	EndIf
 	
-	XFL_SendPluginEvent(PLUGIN_EVENT_CLEAR_ALL) ; Fire clear all before cleanup
+	XFL_SendSystemEvent(PLUGIN_EVENT_CLEAR_ALL) ; Fire clear all before cleanup
 	
 	int i = 0
 	While i < XFL_FollowerAliases.Length
@@ -713,15 +775,7 @@ Function XFL_DismissList(Form akRef, Int iMessage = 0, Int iSayLine = 1)
 			XFL_RemoveFollower(akActor, iMessage, iSayLine)
 		Endif
 	Else
-		int i = 0
-		int limit = XFL_GetMaximum()
-		While i <= limit
-			If XFL_FollowerAliases[i] && XFL_FollowerAliases[i].GetReference() != None
-				akActor = XFL_FollowerAliases[i].GetReference() as Actor
-				XFL_RemoveFollower(akActor, iMessage, iSayLine)
-			EndIf
-			i += 1
-		EndWhile
+		XFL_RemoveAll(iMessage, iSayLine)
 	Endif
 	XFL_SetMaximum()
 EndFunction
@@ -742,15 +796,7 @@ Function XFL_SandboxList(Form akRef)
 			XFL_SetSandbox(akActor)
 		Endif
 	Else
-		int i = 0
-		int limit = XFL_GetMaximum()
-		While i <= limit
-			If XFL_FollowerAliases[i] && XFL_FollowerAliases[i].GetReference() != None
-				akActor = XFL_FollowerAliases[i].GetReference() as Actor
-				XFL_SetSandbox(akActor)
-			EndIf
-			i += 1
-		EndWhile
+		XFL_SandboxAll()
 	Endif
 EndFunction
 
@@ -770,15 +816,7 @@ Function XFL_WaitList(Form akRef)
 			XFL_SetWait(akActor)
 		Endif
 	Else
-		int i = 0
-		int limit = XFL_GetMaximum()
-		While i <= limit
-			If XFL_FollowerAliases[i] && XFL_FollowerAliases[i].GetReference() != None
-				akActor = XFL_FollowerAliases[i].GetReference() as Actor
-				XFL_SetWait(akActor)
-			EndIf
-			i += 1
-		EndWhile
+		XFL_WaitAll()
 	Endif
 EndFunction
 
@@ -798,15 +836,7 @@ Function XFL_FollowList(Form akRef)
 			XFL_SetFollow(akActor)
 		Endif
 	Else
-		int i = 0
-		int limit = XFL_GetMaximum()
-		While i <= limit
-			If XFL_FollowerAliases[i] && XFL_FollowerAliases[i].GetReference() != None
-				akActor = XFL_FollowerAliases[i].GetReference() as Actor
-				XFL_SetFollow(akActor)
-			EndIf
-			i += 1
-		EndWhile
+		XFL_FollowAll()
 	Endif
 EndFunction
 
@@ -817,23 +847,28 @@ EndFunction
 ;         Form = Exact Actor
 ;         FormList = List of Actors
 ;         None = Entire Group
-Function XFL_FocusTarget(Actor akTarget, Form akRef, bool safeCheck)
+Function XFL_FocusTarget(Form akTarget, Form akRef, bool safeCheck)
+	Actor targetActor = akTarget as Actor
 	Actor akActor = None
+	If !targetActor
+		Debug.Trace("EFF ERROR: FocusTarget bad target")
+		return
+	Endif
 	If akRef
 		FormList akFormList = (akRef as FormList)
 		If akFormList
 			int i = 0
 			While i < akFormList.GetSize()
 				akActor = (akFormList.GetAt(i) as Actor)
-				If (safeCheck && akTarget.isHostileToActor(akActor)) || !safeCheck
-					akActor.StartCombat(akTarget)
+				If (safeCheck && targetActor.isHostileToActor(akActor)) || !safeCheck
+					akActor.StartCombat(targetActor)
 				Endif
 				i += 1
 			EndWhile
 		Else
 			akActor = (akRef as Actor)
-			If (safeCheck && akTarget.isHostileToActor(akActor)) || !safeCheck
-				akActor.StartCombat(akTarget)
+			If (safeCheck && targetActor.isHostileToActor(akActor)) || !safeCheck
+				akActor.StartCombat(targetActor)
 			Endif
 		Endif
 	Else
@@ -842,8 +877,8 @@ Function XFL_FocusTarget(Actor akTarget, Form akRef, bool safeCheck)
 		While i <= limit
 			If XFL_FollowerAliases[i] && XFL_FollowerAliases[i].GetReference() != None
 				akActor = XFL_FollowerAliases[i].GetReference() as Actor
-				If (safeCheck && akTarget.isHostileToActor(akActor)) || !safeCheck
-					akActor.StartCombat(akTarget)
+				If (safeCheck && targetActor.isHostileToActor(akActor)) || !safeCheck
+					akActor.StartCombat(targetActor)
 				Endif
 			EndIf
 			i += 1
@@ -858,7 +893,12 @@ EndFunction
 ;         Form = Exact Actor
 ;         FormList = List of Actors
 ;         None = Entire Group
-Function XFL_Teleport(Actor akTarget, Form akRef)
+Function XFL_Teleport(Form akTarget, Form akRef)
+	Actor targetActor = akTarget as Actor
+	If !targetActor
+		Debug.Trace("EFF ERROR: Teleport bad target")
+		return
+	Endif
 	Actor akActor = None
 	If akRef
 		FormList akFormList = (akRef as FormList)
@@ -866,12 +906,12 @@ Function XFL_Teleport(Actor akTarget, Form akRef)
 			int i = 0
 			While i < akFormList.GetSize()
 				akActor = (akFormList.GetAt(i) as Actor)
-				XFL_WarpActor(akActor, akTarget)
+				XFL_WarpActor(akActor, targetActor)
 				i += 1
 			EndWhile
 		Else
 			akActor = (akRef as Actor)
-			XFL_WarpActor(akActor, akTarget)
+			XFL_WarpActor(akActor, targetActor)
 		Endif
 	Else
 		int i = 0
@@ -879,7 +919,7 @@ Function XFL_Teleport(Actor akTarget, Form akRef)
 		While i <= limit
 			If XFL_FollowerAliases[i] && XFL_FollowerAliases[i].GetReference() != None
 				akActor = XFL_FollowerAliases[i].GetReference() as Actor
-				XFL_WarpActor(akActor, akTarget)
+				XFL_WarpActor(akActor, targetActor)
 			EndIf
 			i += 1
 		EndWhile
@@ -895,5 +935,19 @@ Function XFL_WarpActor(Actor akActor, Actor dest)
 		akActor.PlaceAtMe(XFL_PortalEffect)
 		Utility.Wait(0.5)
 		akActor.EnableNoWait(false)
+	Endif
+EndFunction
+
+Function XFL_SendSystemEvent(int eventID, ObjectReference akRef1 = None, ObjectReference akRef2 = None, int aiValue1 = 0, int aiValue2 = 0)
+	XFL_SendPluginEvent(eventID, akRef1, akRef2, aiValue1, aiValue2)
+
+	If SKSEEvents == true ; SKSE events are available
+		int handle = ModEvent.Create("XFL_System_PluginEvent")
+		ModEvent.PushInt(handle, eventID)
+		ModEvent.PushForm(handle, akRef1)
+		ModEvent.PushForm(handle, akRef2)
+		ModEvent.PushInt(handle, aiValue1)
+		ModEvent.PushInt(handle, aiValue2)
+		ModEvent.Send(handle)
 	Endif
 EndFunction

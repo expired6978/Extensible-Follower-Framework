@@ -1248,7 +1248,7 @@ State PluginMenu_Classic
 			int i = 0
 			While i < totalPlugins ; Subtract disabled or hidden plugins
 				XFLPlugin plugin = (XFL_FollowerPlugins.GetAt((page * 7) + i) As XFLPlugin)
-				If plugin && (!plugin.isEnabled() || ((!isGroup && !plugin.showMenu(followerActor)) || (isGroup && !plugin.showGroupMenu())))
+				If plugin && plugin.MenuRef && (!plugin.isEnabled() || ((!isGroup && !plugin.showMenu(followerActor)) || (isGroup && !plugin.showGroupMenu())))
 					totalPlugins -= 1
 				Elseif !plugin
 					totalPlugins -= 1
@@ -1270,7 +1270,7 @@ State PluginMenu_Classic
 				bool incrementAlias = true
 				If XFL_FollowerPlugins.GetSize() > (page * 7) + itemIndex ; Check if there are still more mods to process
 					XFLPlugin plugin = (XFL_FollowerPlugins.GetAt((page * 7) + itemIndex) As XFLPlugin)
-					If plugin && plugin.isEnabled() && ((!isGroup && plugin.showMenu(followerActor)) || (isGroup && plugin.showGroupMenu()))
+					If plugin && plugin.isEnabled() && plugin.MenuRef && ((!isGroup && plugin.showMenu(followerActor)) || (isGroup && plugin.showGroupMenu()))
 						XFL_FollowerMenuAliases[i].ForceRefTo(plugin.MenuRef) ; Force the Menu Object into the menu alias for text replacement
 						XFL_ShowOptionByAlias(XFL_FollowerMenuAliases[i], true)
 						pluginIndex[i] = (page * 7) + itemIndex

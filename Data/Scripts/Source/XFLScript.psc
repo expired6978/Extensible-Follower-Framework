@@ -33,6 +33,7 @@ bool[] Property tmRestore Auto
 bool[] Property ffRestore Auto
 
 Int lastMaximum = 0
+Bool Property XFL_AutoSandboxing = false Auto Conditional
 
 int Property PLUGIN_EVENT_CLEAR_ALL = -1 Autoreadonly
 int Property PLUGIN_EVENT_WAIT = 0x04 Autoreadonly
@@ -95,7 +96,7 @@ Function XFL_RegisterExtensions()
 	; Check for DLC1
 	bool DLC1Check = (Game.GetFormFromFile(0x588C, "Dawnguard.esm") != None) ; Checks for DLC1VampireTurnScript Quest
 	If DLC1Check
-		Debug.Trace("EFF Notification: Dawnguard Loaded.")
+		Debug.Trace("EFF Notification: Dawnguard loaded.")
 		DLC1Extended = true
 	Else
 		DLC1Extended = false
@@ -103,10 +104,10 @@ Function XFL_RegisterExtensions()
 	; Check for menu system
 	bool MENUCheck = (Game.GetFormFromFile(0xE00, "UIExtensions.esp") != None)
 	If MENUCheck
-		Debug.Trace("EFF Notification: Menu system Loaded.")
+		Debug.Trace("EFF Notification: Menu system loaded.")
 		MENUExtended = true
 	Else
-		Debug.Trace("EFF WARNING: Menu system disabled, plugin failed to loaded.")
+		Debug.Trace("EFF WARNING: Menu system disabled, plugin failed to load.")
 		MENUExtended = false
 		XFLMenu.XFL_Config_UseClassicMenus.value = 1
 	Endif
@@ -114,11 +115,11 @@ Function XFL_RegisterExtensions()
 	XFLPanel actorPanel = (Game.GetFormFromFile(0x800, "XFLPanel.esp") as XFLPanel)
 	bool APNLCheck = (actorPanel != None)
 	If APNLCheck
-		Debug.Trace("EFF Notification: Actor panel Loaded.")
+		Debug.Trace("EFF Notification: Actor panel loaded.")
 		APNLExtended = true
 		XFL_Panel = actorPanel
 	Else
-		Debug.Trace("EFF WARNING: Actor panel disabled, plugin failed to loaded.")
+		Debug.Trace("EFF WARNING: Actor panel disabled, plugin failed to load.")
 		APNLExtended = false
 		XFL_Panel = None
 	Endif
@@ -840,6 +841,16 @@ Function XFL_FollowList(Form akRef)
 	Endif
 EndFunction
 
+Function XFL_AutoSandbox(bool engage)
+	If engage && !XFL_AutoSandboxing ; Enable sandbox
+		XFL_EvaluateAll()
+		XFL_AutoSandboxing = true
+	Elseif !engage && XFL_AutoSandboxing ; Disable sandbox
+		XFL_EvaluateAll()
+		XFL_AutoSandboxing = false
+	Endif
+EndFunction
+
 ; Command: Focus Target
 ; Usage:
 ; akTarget - Target actor we wish to focus on
@@ -927,9 +938,9 @@ Function XFL_Teleport(Form akTarget, Form akRef)
 EndFunction
 
 Function XFL_WarpActor(Actor akActor, Actor dest)
-	If akActor.GetCurrentLocation().IsLoaded() && akActor.Is3DLoaded()
-		XFL_Portal.Cast(akActor, dest)
-	Else
+	;If akActor.GetCurrentLocation().IsLoaded() && akActor.Is3DLoaded()
+	;	XFL_Portal.Cast(akActor, dest) ; Portal spell seems to sometimes mistake when the location is loaded and crashes
+	if akActor.IsEnabled() ;Elseif akActor.IsEnabled() ; Don't teleport disabled actors
 		akActor.DisableNoWait(true)
 		akActor.MoveTo(dest, Utility.RandomFloat(-50.0, 50.0), Utility.RandomFloat(-50.0, 50.0))
 		akActor.PlaceAtMe(XFL_PortalEffect)

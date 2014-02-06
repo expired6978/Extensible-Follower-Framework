@@ -241,6 +241,7 @@ Scripts\XFLAliasScript.pex
 Scripts\XFLConfig.pex
 Scripts\XFLConfigBook.pex
 Scripts\XFLFocusFire.pex
+Scripts\XFLIdleMonitor.pex
 Scripts\XFLLoadSettings.pex
 Scripts\XFLMenuScript.pex
 Scripts\XFLMindControl.pex
@@ -251,9 +252,11 @@ Scripts\XFLPluginAggression.pex
 Scripts\XFLPluginCollect.pex
 Scripts\XFLPluginCombat.pex
 Scripts\XFLPluginImportance.pex
+Scripts\XFLPluginNickname.pex
 Scripts\XFLPluginOutfit.pex
 Scripts\XFLPluginSandbox.pex
 Scripts\XFLPluginSpells.pex
+Scripts\XFLPluginTattoos.pex
 Scripts\XFLPluginTrain.pex
 Scripts\XFLPortal.pex
 Scripts\XFLScript.pex
@@ -502,6 +505,7 @@ Scripts\Source\XFLAliasScript.psc
 Scripts\Source\XFLConfig.psc
 Scripts\Source\XFLConfigBook.psc
 Scripts\Source\XFLFocusFire.psc
+Scripts\Source\XFLIdleMonitor.psc
 Scripts\Source\XFLLoadSettings.psc
 Scripts\Source\XFLMenuScript.psc
 Scripts\Source\XFLMindControl.psc
@@ -512,9 +516,11 @@ Scripts\Source\XFLPluginAggression.psc
 Scripts\Source\XFLPluginCollect.psc
 Scripts\Source\XFLPluginCombat.psc
 Scripts\Source\XFLPluginImportance.psc
+Scripts\Source\XFLPluginNickname.psc
 Scripts\Source\XFLPluginOutfit.psc
 Scripts\Source\XFLPluginSandbox.psc
 Scripts\Source\XFLPluginSpells.psc
+Scripts\Source\XFLPluginTattoos.psc
 Scripts\Source\XFLPluginTrain.psc
 Scripts\Source\XFLPortal.psc
 Scripts\Source\XFLScript.psc

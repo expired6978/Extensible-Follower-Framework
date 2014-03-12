@@ -8,6 +8,7 @@ Topic Property DialogueFollowerDismissTopic Auto ; Don't use the package anymore
 GlobalVariable Property XFL_FollowerCountEx Auto
 GlobalVariable Property XFL_MaximumFollowers Auto
 
+GlobalVariable Property XFL_Config_AutoInvisiblity Auto
 GlobalVariable Property XFL_Config_IgnoreTimeout Auto
 
 ReferenceAlias[] Property XFL_FollowerAliases Auto 
@@ -24,6 +25,11 @@ Spell Property XFL_Portal Auto
 Spell Property XFL_FollowerTelepathy Auto
 Spell Property XFL_FollowerTeleportation Auto
 Spell Property XFL_FollowerFocusTarget Auto
+Spell Property XFL_FollowerInvisibility Auto
+Spell Property XFL_FollowerMuffled Auto
+
+MagicEffect Property XFL_FollowerMuffledEffect Auto
+MagicEffect Property XFL_FollowerInvisibilityEffect Auto
 
 XFLOutfit Property XFL_OutfitController Auto
 XFLPanel Property XFL_Panel Auto
@@ -727,33 +733,32 @@ Function XFL_EvaluateAll()
 EndFunction
 
 ; Command: Sneak All
-Function XFL_SneakAll(bool addMuffle = false, bool addLightFoot = false)
-	Perk mufflePerk = Game.GetFormFromFile(0x58213, "Skyrim.esm") as Perk
-	Perk lightfPerk = Game.GetFormFromFile(0x5820C, "Skyrim.esm") as Perk
-
+Function XFL_SneakAll(bool addMuffle = false, bool addInvisibility = false)
 	int i = 0
 	int limit = XFL_GetMaximum()
 	While i <= limit
 		If XFL_FollowerAliases[i] && XFL_FollowerAliases[i].GetReference() != None
 			Actor akActor = (XFL_FollowerAliases[i].GetReference() as Actor)
 			If addMuffle
-				If !akActor.HasPerk(mufflePerk)
-					akActor.AddPerk(mufflePerk)
+				If !akActor.HasMagicEffect(XFL_FollowerMuffledEffect)
+					akActor.DoCombatSpellApply(XFL_FollowerMuffled, akActor)
 				Endif
 			Else
-				If akActor.HasPerk(mufflePerk)
-					akActor.RemovePerk(mufflePerk)
+				If akActor.HasMagicEffect(XFL_FollowerMuffledEffect)
+					akActor.DispelSpell(XFL_FollowerMuffled)
 				Endif
 			EndIf
-			If addLightFoot
-				If !akActor.HasPerk(lightfPerk)
-					akActor.AddPerk(lightfPerk)
-				Endif
-			Else
-				If akActor.HasPerk(lightfPerk)
-					akActor.RemovePerk(lightfPerk)
-				Endif
-			EndIf
+			If XFL_Config_AutoInvisiblity.GetValue() == 1
+				If addInvisibility
+					If !akActor.HasMagicEffect(XFL_FollowerInvisibilityEffect)
+						akActor.DoCombatSpellApply(XFL_FollowerInvisibility, akActor)
+					Endif
+				Else
+					If akActor.HasMagicEffect(XFL_FollowerInvisibilityEffect)
+						akActor.DispelSpell(XFL_FollowerInvisibility)
+					Endif
+				EndIf
+			Endif
 			akActor.EvaluatePackage()
 		EndIf
 		i += 1

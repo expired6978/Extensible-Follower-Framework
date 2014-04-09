@@ -28,7 +28,7 @@ Spell Property XFL_FollowerFocusTarget Auto
 Spell Property XFL_FollowerInvisibility Auto
 Spell Property XFL_FollowerMuffled Auto
 
-MagicEffect Property XFL_FollowerMuffledEffect Auto
+MagicEffect Property XFL_FollowerMuffleEffect Auto
 MagicEffect Property XFL_FollowerInvisibilityEffect Auto
 
 XFLOutfit Property XFL_OutfitController Auto
@@ -740,11 +740,11 @@ Function XFL_SneakAll(bool addMuffle = false, bool addInvisibility = false)
 		If XFL_FollowerAliases[i] && XFL_FollowerAliases[i].GetReference() != None
 			Actor akActor = (XFL_FollowerAliases[i].GetReference() as Actor)
 			If addMuffle
-				If !akActor.HasMagicEffect(XFL_FollowerMuffledEffect)
+				If !akActor.HasMagicEffect(XFL_FollowerMuffleEffect)
 					akActor.DoCombatSpellApply(XFL_FollowerMuffled, akActor)
 				Endif
 			Else
-				If akActor.HasMagicEffect(XFL_FollowerMuffledEffect)
+				If akActor.HasMagicEffect(XFL_FollowerMuffleEffect)
 					akActor.DispelSpell(XFL_FollowerMuffled)
 				Endif
 			EndIf

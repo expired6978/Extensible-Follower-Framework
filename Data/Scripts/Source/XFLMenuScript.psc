@@ -521,8 +521,8 @@ State FollowerMenu_Standard
 			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Group, true)
 			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Command, true)
 			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Talk, true)
-			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Inventory, true)
-			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Magic, true)
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Inventory, !XFLMain.XFL_HasFollowerFlags(followerActor, XFLMain.ACTOR_FLAG_DISABLE_TRADE))
+			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Magic, !XFLMain.XFL_HasFollowerFlags(followerActor, XFLMain.ACTOR_FLAG_DISABLE_TRADE_MAGIC))
 			wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Exit, true)
 			int ret = wheelMenu.OpenMenu(akForm)
 			If ret == Command_Group
@@ -741,6 +741,12 @@ State CommandMenu_Standard
 					wheelMenu.SetPropertyIndexString("optionText", Command_WaitFollow, STRING_COMMAND_FOLLOW)
 					wheelMenu.SetPropertyIndexString("optionLabelText", Command_WaitFollow, STRING_COMMAND_FOLLOW)
 				EndIf
+
+				wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Dismiss, !XFLMain.XFL_HasFollowerFlags(followerActor, XFLMain.ACTOR_FLAG_DISABLE_DISMISS))
+				wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Relax, !XFLMain.XFL_HasFollowerFlags(followerActor, XFLMain.ACTOR_FLAG_DISABLE_RELAX))
+				wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Trade, !XFLMain.XFL_HasFollowerFlags(followerActor, XFLMain.ACTOR_FLAG_DISABLE_TRADE))
+				wheelMenu.SetPropertyIndexBool("optionEnabled", Command_Stats, !XFLMain.XFL_HasFollowerFlags(followerActor, XFLMain.ACTOR_FLAG_DISABLE_STATS))
+				wheelMenu.SetPropertyIndexBool("optionEnabled", Command_More, !XFLMain.XFL_HasFollowerFlags(followerActor, XFLMain.ACTOR_FLAG_DISABLE_MORE))
 			Endif
 			
 			If XFL_MessageMod_Back == 1 ; Back button only available when theres a single actor

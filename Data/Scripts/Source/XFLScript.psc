@@ -37,6 +37,7 @@ XFLPanel Property XFL_Panel Auto
 float[] Property recruitTimes Auto
 bool[] Property tmRestore Auto
 bool[] Property ffRestore Auto
+int[] Property actorFlags Auto
 
 Int lastMaximum = 0
 Bool Property XFL_AutoSandboxing = false Auto Conditional
@@ -48,6 +49,15 @@ int Property PLUGIN_EVENT_FOLLOW = 0x03 Autoreadonly
 int Property PLUGIN_EVENT_ADD_FOLLOWER = 0x00 Autoreadonly
 int Property PLUGIN_EVENT_REMOVE_FOLLOWER = 0x01 Autoreadonly
 int Property PLUGIN_EVENT_REMOVE_DEAD_FOLLOWER = 0x02 Autoreadonly
+
+int Property ACTOR_FLAG_DISABLE_WAIT = 1 Autoreadonly
+int Property ACTOR_FLAG_DISABLE_FOLLOW = 2 Autoreadonly
+int Property ACTOR_FLAG_DISABLE_DISMISS = 4 Autoreadonly
+int Property ACTOR_FLAG_DISABLE_RELAX = 8 Autoreadonly
+int Property ACTOR_FLAG_DISABLE_TRADE = 16 Autoreadonly
+int Property ACTOR_FLAG_DISABLE_TRADE_MAGIC = 32 Autoreadonly
+int Property ACTOR_FLAG_DISABLE_STATS = 64 Autoreadonly
+int Property ACTOR_FLAG_DISABLE_MORE = 128 Autoreadonly
 
 ; Check for game extensions
 bool Property SKSEExtended Auto ; SKSE Loaded
@@ -253,6 +263,7 @@ Function XFL_AddFollower(Form follower)
 	int i = XFL_SetAlias(FollowerActor)
 	tmRestore[i] = FollowerActor.IsPlayerTeammate()
 	ffRestore[i] = FollowerActor.IsIgnoringFriendlyHits()
+	actorFlags[i] = 0
 	FollowerActor.SetPlayerTeammate(true)
 	FollowerActor.IgnoreFriendlyHits(true)
 
@@ -503,6 +514,40 @@ Int Function XFL_GetIndex(Actor follower)
 	return follower.GetActorValue("FavorActive") as Int
 EndFunction
 
+Int Function XFL_GetFollowerFlags(Actor follower)
+	Int index = XFL_GetIndex(follower)
+	If index != -1
+		return actorFlags[index]
+	Endif
+	return 0
+EndFunction
+
+bool Function XFL_SetFollowerFlags(Actor follower, Int flags, bool setFlag)
+	Int index = XFL_GetIndex(follower)
+	If index == -1
+		return false
+	Endif
+	int newFlags = actorFlags[index]
+	If setFlag
+		newFlags = Math.LogicalOr(newFlags, flags)
+	Else
+		newFlags = Math.LogicalAnd(newFlags, Math.LogicalNot(flags))
+	EndIf
+	actorFlags[index] = newFlags
+	return true
+EndFunction
+
+bool Function XFL_HasFollowerFlags(Actor follower, Int flags)
+	Int index = XFL_GetIndex(follower)
+	If index == -1
+		return false
+	Endif
+	If Math.LogicalAnd(actorFlags[index], flags) == flags
+		return true
+	EndIf
+	return false
+EndFunction
+
 ; Returns the total number of actual followers
 int Function XFL_GetCount()
 	If !XFL_isRunning() ; Default to vanilla system if plugin is not loaded
@@ -586,6 +631,7 @@ Function XFL_ForceClearAll()
 				SetObjectiveDisplayed(100 + i, false)
 			Endif
 			recruitTimes[i] = 0
+			actorFlags[i] = 0
 		EndIf
 		i += 1
 	EndWhile
@@ -621,6 +667,7 @@ Function XFL_ClearAlias(Actor follower)
 	If XFL_FollowerAliases[i] && (XFL_FollowerAliases[i].GetReference() as Actor) == follower
 		follower.SetActorValue("FavorActive", -1)
 		recruitTimes[i] = 0.0
+		actorFlags[i] = 0
 		XFL_FollowerAliases[i].Clear() ; Clear the ReferenceAlias that corresponds to this actor
 	EndIf
 

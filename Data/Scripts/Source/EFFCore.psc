@@ -132,18 +132,16 @@ Function XFL_RegisterExtensions()
 	Else
 		Debug.Trace("EFF WARNING: Menu system disabled, plugin failed to load.")
 		MENUExtended = false
-		XFLMain.XFL_Config_TelepathyMenu.value = 0
 		XFLMenu.XFL_Config_UseClassicMenus.value = 1
 	Endif
 	; Check for panel presence
-	EFFPanel actorPanel = (Game.GetFormFromFile(0xF68, "EFFCore.esm") as EFFPanel)
-	bool APNLCheck = (actorPanel != None)
+	bool APNLCheck = (Game.GetFormFromFile(0x824, "SkyUI.esp") != None)
 	If APNLCheck
 		Debug.Trace("EFF Notification: Actor panel loaded.")
 		APNLExtended = true
-		XFL_Panel = actorPanel
+		XFL_Panel = Game.GetFormFromFile(0xF68, "EFFCore.esm") as EFFPanel
 	Else
-		Debug.Trace("EFF WARNING: Actor panel disabled, plugin failed to load.")
+		Debug.Trace("EFF WARNING: Actor panel disabled, plugin failed to load SkyUI not found.")
 		APNLExtended = false
 		XFL_Panel = None
 	Endif
@@ -894,11 +892,11 @@ Function XFL_DismissList(Form akRef, Int iMessage = 0, Int iSayLine = 1)
 	If akRef
 		FormList akFormList = (akRef as FormList)
 		If akFormList
-			int i = 0
-			While i < akFormList.GetSize()
+			int i = akFormList.GetSize()
+			While i > 0
 				akActor = (akFormList.GetAt(i) as Actor)
 				XFL_RemoveFollower(akActor, iMessage, iSayLine)
-				i += 1
+				i -= 1
 			EndWhile
 		Else
 			akActor = (akRef as Actor)
@@ -916,7 +914,8 @@ Function XFL_SandboxList(Form akRef)
 		FormList akFormList = (akRef as FormList)
 		If akFormList
 			int i = 0
-			While i < akFormList.GetSize()
+			int size = akFormList.GetSize()
+			While i < size
 				akActor = (akFormList.GetAt(i) as Actor)
 				XFL_SetSandbox(akActor)
 				i += 1
@@ -936,7 +935,8 @@ Function XFL_WaitList(Form akRef)
 		FormList akFormList = (akRef as FormList)
 		If akFormList
 			int i = 0
-			While i < akFormList.GetSize()
+			int size = akFormList.GetSize()
+			While i < size
 				akActor = (akFormList.GetAt(i) as Actor)
 				XFL_SetWait(akActor)
 				i += 1
@@ -956,7 +956,8 @@ Function XFL_FollowList(Form akRef)
 		FormList akFormList = (akRef as FormList)
 		If akFormList
 			int i = 0
-			While i < akFormList.GetSize()
+			int size = akFormList.GetSize()
+			While i < size
 				akActor = (akFormList.GetAt(i) as Actor)
 				XFL_SetFollow(akActor)
 				i += 1
@@ -998,7 +999,8 @@ Function XFL_FocusTarget(Form akTarget, Form akRef, bool safeCheck)
 		FormList akFormList = (akRef as FormList)
 		If akFormList
 			int i = 0
-			While i < akFormList.GetSize()
+			int size = akFormList.GetSize()
+			While i < size
 				akActor = (akFormList.GetAt(i) as Actor)
 				If (safeCheck && targetActor.isHostileToActor(akActor)) || !safeCheck
 					akActor.StartCombat(targetActor)
@@ -1044,7 +1046,8 @@ Function XFL_Teleport(Form akTarget, Form akRef)
 		FormList akFormList = (akRef as FormList)
 		If akFormList
 			int i = 0
-			While i < akFormList.GetSize()
+			int size = akFormList.GetSize()
+			While i < size
 				akActor = (akFormList.GetAt(i) as Actor)
 				XFL_WarpActor(akActor, targetActor)
 				i += 1

@@ -511,6 +511,7 @@ State FollowerMenu_Standard
 			wheelMenu.SetPropertyIndexString("optionText", Command_Group, STRING_COMMAND_GROUP)
 			wheelMenu.SetPropertyIndexString("optionText", Command_Command, STRING_COMMAND_COMMAND)
 			wheelMenu.SetPropertyIndexString("optionText", Command_Talk, STRING_COMMAND_TALK)
+			wheelMenu.SetPropertyIndexString("optionText", Command_Equipment, STRING_COMMAND_EQUIPMENT)
 			wheelMenu.SetPropertyIndexString("optionText", Command_Inventory, STRING_COMMAND_INVENTORY)
 			wheelMenu.SetPropertyIndexString("optionText", Command_Magic, STRING_COMMAND_MAGIC)
 			wheelMenu.SetPropertyIndexString("optionText", Command_Exit, STRING_COMMAND_EXIT)
@@ -885,10 +886,10 @@ State TradeMenu_Standard
 			int ret = wheelMenu.OpenMenu(akForm)
 			if followerActor
 				If ret == Command_Equipment
-					XFLMain.XFL_OpenInventory(followerActor)
+					followerActor.OpenInventory()
 					OnFinishMenu()
 				Elseif ret == Command_Inventory
-					followerActor.OpenInventory()
+					XFLMain.XFL_OpenInventory(followerActor)
 					OnFinishMenu()
 				Elseif ret == Command_Magic
 					UIMenuBase magicMenu = XFL_GetStandardMenu("UIMagicMenu")

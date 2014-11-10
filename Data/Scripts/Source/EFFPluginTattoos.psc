@@ -18,7 +18,7 @@ Event OnMenuEntryTriggered(Form akForm, int itemId, int callback)
 	Endif
 
 	UIMenuBase menuBase = UIExtensions.GetMenu("UICosmeticMenu")
-	menuBase.SetPropertyInt("categories", 30)
+	menuBase.SetPropertyInt("categories", 62)
 	menuBase.OpenMenu(akForm)
 
 	If SKSE.GetPluginVersion("NiOverride") >= 1

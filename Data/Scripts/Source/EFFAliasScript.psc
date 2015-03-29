@@ -49,11 +49,12 @@ Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemRefere
 	bool fromPlayer = (akSourceContainer == Game.GetPlayer())
 	bool fromWorld = (akSourceContainer == None)
 	bool isEquippable = (akBaseItem as Weapon) || (akBaseItem as Armor) || (akBaseItem as Light)
+	bool isFoodItem = (akBaseItem As Potion) && (akBaseItem As Potion).IsFood() ; ADDED
 	If akItemReference
 		Form refBase = akItemReference.GetBaseObject()
 		isEquippable = (refBase as Weapon) || (refBase as Armor) || (refBase as Light)
 	Endif
-	If fromWorld && !fromSelf && !fromPlayer && !isEquippable ; Got it from the world, or something other than the player, and it's not equippable
+	If fromWorld && !fromSelf && !fromPlayer && !isEquippable && !isFoodItem ; Got it from the world, or something other than the player, and it's not equippable nor food
 		If akItemReference
 			XFLMain.XFL_MoveToInventory(Self.GetReference(), akItemReference, aiItemCount)
 		Else
